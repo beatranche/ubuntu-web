@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Contrato Digital — Ubuntu Aventuras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --prim:  #2e5b6b;
+            --acent: #e1be7c;
+            --dark:  #1a3540;
+            --light: #f0f6f8;
+            --white: #ffffff;
+            --text:  #2c3e50;
+            --muted: #6c7a89;
+            --error: #dc3545;
+            --ok:    #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--light);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, var(--prim), var(--dark));
+            padding: 24px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            color: var(--white); font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+        .header p { color: rgba(255,255,255,0.7); font-size: 0.85rem; }
+        .header .badge {
+            display: inline-block;
+            background: rgba(225,190,124,0.2);
+            border: 1px solid rgba(225,190,124,0.4);
+            color: var(--acent); padding: 3px 12px;
+            border-radius: 12px; font-size: 0.75rem;
+            margin-bottom: 10px;
+        }
+
+        /* ── RESERVA INFO ── */
+        .reserva-info {
+            background: var(--white);
+            margin: 16px; border-radius: 12px;
+            padding: 16px 20px;
+            border-left: 4px solid var(--acent);
+            display: none;
+        }
+        .reserva-info.visible { display: block; }
+        .reserva-info h3 {
+            color: var(--prim); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .reserva-row {
+            display: flex; justify-content: space-between;
+            font-size: 0.9rem; padding: 4px 0;
+            border-bottom: 1px solid var(--light);
+        }
+        .reserva-row:last-child { border-bottom: none; }
+        .reserva-row span:first-child { color: var(--muted); }
+        .reserva-row span:last-child { font-weight: 600; color: var(--prim); }
+
+        /* ── SECCIONES ── */
+        .seccion {
+            background: var(--white);
+            margin: 12px 16px;
+            border-radius: 12px; padding: 20px;
+        }
+
+        .seccion h2 {
+            font-size: 0.95rem; font-weight: 700;
+            color: var(--prim); margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--light);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* ── CAMPOS ── */
+        .campo { margin-bottom: 16px; }
+        .campo label {
+            display: block; font-size: 0.82rem;
+            font-weight: 600; color: var(--prim);
+            margin-bottom: 6px;
+        }
+        .campo input, .campo select {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid #e8eef2; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem; color: var(--text);
+            transition: border-color 0.2s;
+            background: var(--white);
+            -webkit-appearance: none;
+        }
+        .campo input:focus, .campo select:focus {
+            outline: none; border-color: var(--prim);
+        }
+        .campo input.error { border-color: var(--error); }
+
+        .campo-row {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ── PARTICIPANTES ── */
+        .participante {
+            background: var(--light); border-radius: 8px;
+            padding: 12px; margin-bottom: 10px;
+        }
+        .participante-titulo {
+            font-size: 0.8rem; font-weight: 700;
+            color: var(--prim); margin-bottom: 10px;
+        }
+        #btn-add-part {
+            width: 100%; padding: 10px;
+            background: transparent;
+            border: 2px dashed var(--prim);
+            border-radius: 8px; color: var(--prim);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        #btn-add-part:hover { background: var(--light); }
+
+        /* ── CLÁUSULAS ── */
+        .clausulas-lista { list-style: none; }
+        .clausula-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--light);
+        }
+        .clausula-item:last-child { border-bottom: none; }
+        .clausula-item input[type="checkbox"] {
+            width: 20px; height: 20px; min-width: 20px;
+            margin-top: 1px; cursor: pointer;
+            accent-color: var(--prim);
+        }
+        .clausula-item label {
+            font-size: 0.85rem; line-height: 1.5;
+            color: var(--text); cursor: pointer;
+        }
+
+        .clausulas-progreso {
+            background: var(--light); border-radius: 8px;
+            padding: 10px 14px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .progreso-bar {
+            flex: 1; height: 6px;
+            background: #dee2e6; border-radius: 3px;
+            overflow: hidden;
+        }
+        .progreso-fill {
+            height: 100%; background: var(--prim);
+            border-radius: 3px; transition: width 0.3s;
+            width: 0%;
+        }
+        .progreso-txt {
+            font-size: 0.8rem; color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* ── FIRMA ── */
+        .firma-container {
+            border: 2px solid var(--prim);
+            border-radius: 10px; overflow: hidden;
+            background: var(--white); margin-bottom: 10px;
+            touch-action: none;
+        }
+        #canvas-firma {
+            display: block; width: 100%;
+            height: 160px; cursor: crosshair;
+        }
+        .firma-btns {
+            display: flex; gap: 8px; margin-bottom: 10px;
+        }
+        .btn-limpiar {
+            flex: 1; padding: 10px;
+            background: var(--light); border: none;
+            border-radius: 8px; color: var(--prim);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600; cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .firma-ok {
+            background: #d4edda; color: #155724;
+            border-radius: 8px; padding: 8px 14px;
+            font-size: 0.85rem; display: none;
+        }
+        .firma-ok.visible { display: block; }
+
+        /* ── PRIVACIDAD ── */
+        .privacidad-check {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 14px; background: var(--light);
+            border-radius: 8px;
+        }
+        .privacidad-check input {
+            width: 20px; height: 20px; min-width: 20px;
+            margin-top: 2px; accent-color: var(--prim);
+        }
+        .privacidad-check label {
+            font-size: 0.82rem; line-height: 1.5;
+            color: var(--muted);
+        }
+        .privacidad-check a { color: var(--prim); }
+
+        /* ── BOTÓN GUARDAR ── */
+        .btn-guardar {
+            width: calc(100% - 32px); margin: 16px;
+            padding: 18px; background: var(--prim);
+            color: var(--white); border: none;
+            border-radius: 12px; font-family: 'DM Sans', sans-serif;
+            font-size: 1.05rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s;
+            display: block;
+        }
+        .btn-guardar:hover { background: var(--dark); }
+        .btn-guardar:disabled {
+            background: #aaa; cursor: not-allowed;
+        }
+
+        /* ── MENSAJES ── */
+        .msg {
+            margin: 0 16px 16px; padding: 14px 18px;
+            border-radius: 10px; font-size: 0.9rem;
+            display: none;
+        }
+        .msg.success {
+            background: #d4edda; color: #155724;
+            border: 1px solid #c3e6cb; display: block;
+        }
+        .msg.error {
+            background: #f8d7da; color: #721c24;
+            border: 1px solid #f5c6cb; display: block;
+        }
+
+        /* ── PANTALLA ÉXITO ── */
+        .exito-screen {
+            display: none; text-align: center;
+            padding: 60px 20px;
+        }
+        .exito-screen.visible { display: block; }
+        .exito-icon { font-size: 4rem; margin-bottom: 16px; }
+        .exito-screen h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--prim); font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+        .exito-screen p { color: var(--muted); line-height: 1.7; }
+
+        .formulario-completo { display: block; }
+
+        /* ── AUDIT TRAIL ── */
+        .audit-info {
+            background: var(--light); border-radius: 8px;
+            padding: 12px 14px; font-size: 0.78rem;
+            color: var(--muted); margin-top: 8px;
+        }
+
+        /* Footer */
+        .footer-mini {
+            text-align: center; padding: 20px;
+            font-size: 0.78rem; color: var(--muted);
+        }
+        .footer-mini a { color: var(--prim); }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="badge">Contrato Digital · PTA-LE78</div>
+    <h1>Ubuntu Aventuras</h1>
+    <p>Rellena y firma el contrato de tu actividad</p>
+</div>
+
+<!-- INFO RESERVA (si viene de un enlace con ID) -->
+<div class="reserva-info" id="reserva-info">
+    <h3>📋 Tu reserva</h3>
+    <div class="reserva-row"><span>Actividad</span><span id="ri-actividad">—</span></div>
+    <div class="reserva-row"><span>Fecha</span><span id="ri-fecha">—</span></div>
+    <div class="reserva-row"><span>Hora</span><span id="ri-hora">—</span></div>
+    <div class="reserva-row"><span>Personas</span><span id="ri-personas">—</span></div>
+    <div class="reserva-row"><span>Precio</span><span id="ri-precio">—</span></div>
+</div>
+
+<!-- FORMULARIO -->
+<div class="formulario-completo" id="formulario">
+
+    <!-- DATOS PERSONALES -->
+    <div class="seccion">
+        <h2>👤 Datos personales</h2>
+        <div class="campo">
+            <label>Nombre y apellidos *</label>
+            <input type="text" id="nombre" placeholder="Tu nombre completo" autocomplete="name">
+        </div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>DNI / Pasaporte *</label>
+                <input type="text" id="dni" placeholder="12345678A">
+            </div>
+            <div class="campo">
+                <label>Fecha de nacimiento *</label>
+                <input type="date" id="fecha-nac">
+            </div>
+        </div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Teléfono *</label>
+                <input type="tel" id="telefono" placeholder="655 123 456" autocomplete="tel">
+            </div>
+            <div class="campo">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="tu@email.com" autocomplete="email">
+            </div>
+        </div>
+        <div class="campo">
+            <label>Provincia / Ciudad *</label>
+            <input type="text" id="provincia" placeholder="León">
+        </div>
+    </div>
+
+    <!-- MENORES -->
+    <div class="seccion">
+        <h2>👶 Menores de edad</h2>
+        <div class="campo">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="tiene-menores" style="width:18px; height:18px; accent-color:var(--prim);">
+                Hay menores de edad en el grupo
+            </label>
+        </div>
+        <div id="tutor-fields" style="display:none;">
+            <div class="campo-row">
+                <div class="campo">
+                    <label>Nombre del tutor legal *</label>
+                    <input type="text" id="tutor-nombre" placeholder="Nombre completo">
+                </div>
+                <div class="campo">
+                    <label>DNI del tutor *</label>
+                    <input type="text" id="tutor-dni" placeholder="12345678A">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PARTICIPANTES -->
+    <div class="seccion">
+        <h2>👥 Participantes</h2>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">
+            Añade el nombre y DNI de cada participante además del titular.
+        </p>
+        <div id="participantes-lista"></div>
+        <button id="btn-add-part" type="button" onclick="addParticipante()">
+            + Añadir participante
+        </button>
+    </div>
+
+    <!-- DATOS DEL ALQUILER -->
+    <div class="seccion">
+        <h2>🚣 Datos del alquiler</h2>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Actividad *</label>
+                <select id="actividad">
+                    <option value="">Seleccionar...</option>
+                    <option>Kayak</option>
+                    <option>Hidropedales</option>
+                    <option>Paddle surf</option>
+                    <option>E-Bikes</option>
+                    <option>Equipo de Via Ferrata</option>
+                    <option>Ruta Bisontes</option>
+                    <option>Senderismo</option>
+                    <option>Grupos</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Cantidad *</label>
+                <input type="number" id="cantidad" min="1" max="50" value="1">
+            </div>
+        </div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Duración</label>
+                <select id="duracion">
+                    <option>1 hora</option>
+                    <option>2 horas</option>
+                    <option>3 horas</option>
+                    <option>Medio dia</option>
+                    <option>Todo el dia</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Precio total (€)</label>
+                <input type="number" id="precio" min="0" step="0.01" value="0">
+            </div>
+        </div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Fecha *</label>
+                <input type="date" id="fecha-actividad">
+            </div>
+            <div class="campo">
+                <label>Hora inicio</label>
+                <input type="time" id="hora-inicio" value="10:00">
+            </div>
+        </div>
+    </div>
+
+    <!-- CONDICIONES -->
+    <div class="seccion">
+        <h2>📋 Condiciones generales</h2>
+        <div class="clausulas-progreso">
+            <div class="progreso-bar">
+                <div class="progreso-fill" id="progreso-fill"></div>
+            </div>
+            <span class="progreso-txt" id="progreso-txt">0 / 13 aceptadas</span>
+        </div>
+        <ul class="clausulas-lista" id="clausulas-lista"></ul>
+    </div>
+
+    <!-- FIRMA -->
+    <div class="seccion">
+        <h2>✍️ Firma</h2>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">
+            Firma con el dedo en el recuadro de abajo.
+        </p>
+        <div class="firma-container">
+            <canvas id="canvas-firma"></canvas>
+        </div>
+        <div class="firma-btns">
+            <button class="btn-limpiar" onclick="limpiarFirma()">🗑️ Borrar firma</button>
+        </div>
+        <div class="firma-ok" id="firma-ok">✅ Firma registrada</div>
+    </div>
+
+    <!-- PRIVACIDAD -->
+    <div class="seccion">
+        <h2>🔒 Privacidad</h2>
+        <div class="privacidad-check">
+            <input type="checkbox" id="acepta-privacidad">
+            <label for="acepta-privacidad">
+                He leído y acepto la
+                <a href="privacidad.html" target="_blank">política de privacidad</a>
+                de Ubuntu Aventuras. Consiento el tratamiento de mis datos personales
+                para la gestión del contrato de actividades.
+                <br><br>
+                Responsable: Ubuntu Aventuras · CIF: 09806738K ·
+                hola@ubuntuaventuras.es
+            </label>
+        </div>
+    </div>
+
+    <!-- BOTÓN GUARDAR -->
+    <button class="btn-guardar" id="btn-guardar" onclick="guardarContrato()">
+        💾 Firmar y guardar contrato
+    </button>
+
+    <div class="msg" id="msg-result"></div>
+
+</div>
+
+<!-- PANTALLA ÉXITO -->
+<div class="exito-screen" id="exito-screen">
+    <div class="exito-icon">✅</div>
+    <h2>¡Contrato firmado!</h2>
+    <p>
+        Tu contrato ha sido registrado correctamente.<br>
+        Guarda el número de referencia: <strong id="contrato-id-ok"></strong>
+    </p>
+    <br>
+    <p style="font-size:0.85rem;">
+        Ubuntu Aventuras te espera.<br>
+        📞 655 703 034 · 💬 Bizum: 605 702 670
+    </p>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-mini">
+    Ubuntu Aventuras · PTA-LE78 ·
+    <a href="privacidad.html">Privacidad</a> ·
+    <a href="aviso-legal.html">Aviso legal</a>
+</div>
+
+<script>
+// ── CONFIG ──
+const SUPABASE_URL  = 'https://rhuypwyxoethdezglcah.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_TqI43DBHh_K5mnYVE_f0sA_5dOokgsT';
+
+// ── CLÁUSULAS ──
+const CLAUSULAS = [
+    "El uso de las embarcaciones es recreativo. No se permite su uso deportivo ni competitivo.",
+    "Es obligatorio el uso del chaleco salvavidas en todo momento.",
+    "El arrendatario debe ser mayor de 18 años y será responsable del material alquilado.",
+    "El pago se realiza al inicio mediante efectivo, tarjeta o Bizum.",
+    "La entrega anticipada no conlleva reembolso.",
+    "Se debe respetar el entorno natural y las indicaciones del personal de Ubuntu Aventuras.",
+    "El material debe devolverse en buen estado. En caso de pérdida o daño, se abonará su coste.",
+    "Si se sobrepasa el tiempo en más de 10 minutos, se cobrará una hora adicional completa.",
+    "La empresa se reserva el derecho de suspender la actividad por causas justificadas.",
+    "Ubuntu Aventuras no se responsabiliza de objetos personales perdidos o dañados.",
+    "No se garantiza asistencia en caso de avería durante el uso.",
+    "El cliente se compromete a asumir cualquier sanción derivada de un mal uso del material.",
+    "Menores bajo responsabilidad del tutor. He recibido instrucciones de seguridad y entiendo los riesgos.",
+];
+
+// ── RENDERIZAR CLÁUSULAS ──
+const lista = document.getElementById('clausulas-lista');
+CLAUSULAS.forEach((c, i) => {
+    const li = document.createElement('li');
+    li.className = 'clausula-item';
+    li.innerHTML = `
+        <input type="checkbox" id="cl-${i}" onchange="actualizarProgreso()">
+        <label for="cl-${i}">${i+1}. ${c}</label>
+    `;
+    lista.appendChild(li);
+});
+
+function actualizarProgreso() {
+    const total = CLAUSULAS.length;
+    const aceptadas = document.querySelectorAll('.clausula-item input:checked').length;
+    const pct = (aceptadas / total) * 100;
+    document.getElementById('progreso-fill').style.width = pct + '%';
+    document.getElementById('progreso-txt').textContent = `${aceptadas} / ${total} aceptadas`;
+}
+
+// ── MENORES ──
+document.getElementById('tiene-menores').addEventListener('change', function() {
+    document.getElementById('tutor-fields').style.display =
+        this.checked ? 'block' : 'none';
+});
+
+// ── PARTICIPANTES ──
+let numPart = 0;
+function addParticipante() {
+    numPart++;
+    const div = document.createElement('div');
+    div.className = 'participante';
+    div.id = `part-${numPart}`;
+    div.innerHTML = `
+        <div class="participante-titulo">Participante ${numPart}</div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Nombre completo</label>
+                <input type="text" id="part-nombre-${numPart}" placeholder="Nombre y apellidos">
+            </div>
+            <div class="campo">
+                <label>DNI / Pasaporte</label>
+                <input type="text" id="part-dni-${numPart}" placeholder="12345678A">
+            </div>
+        </div>
+    `;
+    document.getElementById('participantes-lista').appendChild(div);
+}
+
+// ── CARGAR RESERVA DESDE URL ──
+const params = new URLSearchParams(window.location.search);
+const reservaId = params.get('reserva');
+
+if (reservaId) {
+    fetch(`${SUPABASE_URL}/rest/v1/reservas?id=eq.${reservaId}&select=*`, {
+        headers: {
+            'apikey': SUPABASE_ANON,
+            'Authorization': `Bearer ${SUPABASE_ANON}`
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data && data[0]) {
+            const r = data[0];
+            // Mostrar info
+            document.getElementById('reserva-info').classList.add('visible');
+            document.getElementById('ri-actividad').textContent = r.actividad || '—';
+            document.getElementById('ri-fecha').textContent =
+                r.fecha_actividad ? new Date(r.fecha_actividad).toLocaleDateString('es-ES') : '—';
+            document.getElementById('ri-hora').textContent =
+                r.hora_inicio ? r.hora_inicio.slice(0,5) : '—';
+            document.getElementById('ri-personas').textContent = r.personas || '—';
+            document.getElementById('ri-precio').textContent =
+                r.precio ? r.precio + ' €' : '—';
+
+            // Autorellenar formulario
+            if (r.nombre) document.getElementById('nombre').value = r.nombre;
+            if (r.actividad) document.getElementById('actividad').value = r.actividad;
+            if (r.personas) document.getElementById('cantidad').value = r.personas;
+            if (r.duracion) document.getElementById('duracion').value = r.duracion;
+            if (r.precio) document.getElementById('precio').value = r.precio;
+            if (r.fecha_actividad) document.getElementById('fecha-actividad').value = r.fecha_actividad;
+            if (r.hora_inicio) document.getElementById('hora-inicio').value = r.hora_inicio.slice(0,5);
+
+            // Guardar ID para vincular
+            document.getElementById('btn-guardar').dataset.reservaId = r.id;
+            document.getElementById('btn-guardar').dataset.reservationId = r.reservation_id || '';
+        }
+    })
+    .catch(() => {});
+}
+
+// ── CANVAS FIRMA ──
+const canvas = document.getElementById('canvas-firma');
+const ctx = canvas.getContext('2d');
+let dibujando = false;
+let firmaVacia = true;
+
+function ajustarCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width  = rect.width  * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+}
+ajustarCanvas();
+window.addEventListener('resize', ajustarCanvas);
+
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return {
+        x: src.clientX - rect.left,
+        y: src.clientY - rect.top
+    };
+}
+
+canvas.addEventListener('mousedown',  e => { dibujando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); firmaVacia = false; });
+canvas.addEventListener('mousemove',  e => { if (!dibujando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+canvas.addEventListener('mouseup',    () => { dibujando = false; if (!firmaVacia) document.getElementById('firma-ok').classList.add('visible'); });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); dibujando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); firmaVacia = false; }, {passive:false});
+canvas.addEventListener('touchmove',  e => { e.preventDefault(); if (!dibujando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, {passive:false});
+canvas.addEventListener('touchend',   () => { dibujando = false; if (!firmaVacia) document.getElementById('firma-ok').classList.add('visible'); });
+
+function limpiarFirma() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    firmaVacia = true;
+    document.getElementById('firma-ok').classList.remove('visible');
+}
+
+// ── GUARDAR CONTRATO ──
+async function guardarContrato() {
+    const btn = document.getElementById('btn-guardar');
+    const msg = document.getElementById('msg-result');
+    msg.className = 'msg';
+
+    // Validar campos obligatorios
+    const nombre   = document.getElementById('nombre').value.trim();
+    const dni      = document.getElementById('dni').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const provincia = document.getElementById('provincia').value.trim();
+    const actividad = document.getElementById('actividad').value;
+    const fechaAct  = document.getElementById('fecha-actividad').value;
+    const tieneMenores = document.getElementById('tiene-menores').checked;
+    const tutorNombre  = document.getElementById('tutor-nombre')?.value.trim() || '';
+    const tutorDni     = document.getElementById('tutor-dni')?.value.trim() || '';
+    const aceptaPriv   = document.getElementById('acepta-privacidad').checked;
+
+    const errores = [];
+    if (!nombre)    errores.push('Nombre');
+    if (!dni)       errores.push('DNI');
+    if (!telefono)  errores.push('Teléfono');
+    if (!provincia) errores.push('Provincia');
+    if (!actividad) errores.push('Actividad');
+    if (!fechaAct)  errores.push('Fecha de actividad');
+    if (tieneMenores && !tutorNombre) errores.push('Nombre del tutor');
+    if (!aceptaPriv) errores.push('Acepta la política de privacidad');
+
+    const clausulasAceptadas = document.querySelectorAll('.clausula-item input:checked').length;
+    if (clausulasAceptadas < CLAUSULAS.length) {
+        errores.push(`Acepta todas las condiciones (${clausulasAceptadas}/${CLAUSULAS.length})`);
+    }
+
+    if (firmaVacia) errores.push('Firma digital');
+
+    if (errores.length > 0) {
+        msg.className = 'msg error';
+        msg.textContent = `⚠️ Campos pendientes: ${errores.join(', ')}`;
+        msg.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    // Recoger participantes
+    const participantes = [];
+    for (let i = 1; i <= numPart; i++) {
+        const n = document.getElementById(`part-nombre-${i}`)?.value.trim();
+        const d = document.getElementById(`part-dni-${i}`)?.value.trim();
+        if (n) participantes.push({ nombre: n, dni: d || '' });
+    }
+
+    // Firma como PNG base64
+    const firmaData = canvas.toDataURL('image/png');
+
+    // Timestamp y audit trail
+    const ahora = new Date();
+    const datos = {
+        reservation_id:  btn.dataset.reservationId || null,
+        actividad:       actividad,
+        cantidad:        parseInt(document.getElementById('cantidad').value) || 1,
+        duracion:        document.getElementById('duracion').value,
+        precio:          parseFloat(document.getElementById('precio').value) || 0,
+        hora_inicio:     document.getElementById('hora-inicio').value + ':00',
+        hora_fin:        null,
+        fecha_actividad: fechaAct,
+        nombre:          nombre,
+        provincia:       provincia,
+        telefono:        telefono,
+        email:           document.getElementById('email').value.trim() || null,
+        dni:             dni,
+        fecha_nacimiento: document.getElementById('fecha-nac').value || null,
+        tiene_menores:   tieneMenores,
+        tutor_nombre:    tutorNombre || null,
+        tutor_dni:       tutorDni || null,
+        participantes:   participantes,
+        firma_svg:       firmaData,
+        firmado_en:      ahora.toISOString(),
+        ip_firmante:     'web-cliente',
+        creado_por:      'cliente-web',
+    };
+
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/contratos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON,
+                'Authorization': `Bearer ${SUPABASE_ANON}`,
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(datos)
+        });
+
+        const result = await res.json();
+
+        if (res.ok || res.status === 201) {
+            const id = Array.isArray(result) ? result[0]?.id : result?.id;
+            document.getElementById('formulario').style.display = 'none';
+            document.getElementById('exito-screen').classList.add('visible');
+            document.getElementById('contrato-id-ok').textContent = `#${id || '—'}`;
+        } else {
+            throw new Error(result?.message || `Error ${res.status}`);
+        }
+
+    } catch (err) {
+        msg.className = 'msg error';
+        msg.textContent = `❌ Error: ${err.message}. Llámanos al 655 703 034.`;
+        btn.disabled = false;
+        btn.textContent = '💾 Firmar y guardar contrato';
+        msg.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+</script>
+</body>
+</html>
