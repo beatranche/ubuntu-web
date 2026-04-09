@@ -495,7 +495,7 @@
 <script>
 // ── CONFIG ──
 const SUPABASE_URL  = 'https://rhuypwyxoethdezglcah.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_TqI43DBHh_K5mnYVE_f0sA_5dOokgsT';
+const SUPABASE_ANON = 'REEMPLAZAR_CON_ANON_KEY';
 
 // ── CLÁUSULAS ──
 const CLAUSULAS = [
@@ -648,6 +648,12 @@ function limpiarFirma() {
 }
 
 // ── GUARDAR CONTRATO ──
+function mostrarCamposKayak() {
+    const act = document.getElementById('actividad').value;
+    document.getElementById('kayak-fields').style.display =
+        act === 'Kayak' ? 'block' : 'none';
+}
+
 async function guardarContrato() {
     const btn = document.getElementById('btn-guardar');
     const msg = document.getElementById('msg-result');
@@ -746,6 +752,40 @@ async function guardarContrato() {
 
         if (res.ok || res.status === 201) {
             const id = Array.isArray(result) ? result[0]?.id : result?.id;
+            const actividad_val = document.getElementById('actividad').value;
+
+            // Registrar checkin automáticamente al firmar contrato
+            const checkinDatos = {
+                nombre:        datos.nombre,
+                actividad:     actividad_val,
+                fecha:         datos.fecha_actividad,
+                kayaks_dobles: datos.kayaks_dobles || 0,
+                kayaks_indiv:  datos.kayaks_indiv || 0,
+                paddle_surf:   actividad_val === 'Paddle surf' ? (datos.cantidad || 0) : 0,
+                hidropedales:  actividad_val === 'Hidropedales' ? Math.ceil((datos.cantidad||0)/4) : 0,
+                estado:        'llegado',
+                hora_llegada:  new Date().toISOString(),
+                reservation_id: btn.dataset.reservationId || null,
+                registrado_por: 'cliente-web',
+            };
+
+            // Insertar checkin en Supabase
+            fetch(`${SUPABASE_URL}/rest/v1/checkins`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': SUPABASE_ANON,
+                    'Authorization': `Bearer ${SUPABASE_ANON}`,
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(checkinDatos)
+            }).catch(() => {}); // silencioso si falla
+
+            // Enviar PDF por email si tiene
+            if (datos.email) {
+                // El PDF se genera desde la app interna al revisar el contrato
+            }
+
             document.getElementById('formulario').style.display = 'none';
             document.getElementById('exito-screen').classList.add('visible');
             document.getElementById('contrato-id-ok').textContent = `#${id || '—'}`;
@@ -764,3 +804,4 @@ async function guardarContrato() {
 </script>
 </body>
 </html>
+
