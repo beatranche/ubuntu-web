@@ -18,213 +18,74 @@
             --error: #dc3545;
             --ok:    #28a745;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--light);
-            color: var(--text);
-            min-height: 100vh;
-        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--light); color: var(--text); min-height: 100vh; }
 
-        .header {
-            background: linear-gradient(135deg, var(--prim), var(--dark));
-            padding: 24px 20px;
-            text-align: center;
-        }
-        .header h1 {
-            font-family: 'Playfair Display', serif;
-            color: var(--white); font-size: 1.4rem;
-            margin-bottom: 4px;
-        }
+        .header { background: linear-gradient(135deg, var(--prim), var(--dark)); padding: 24px 20px; text-align: center; }
+        .header h1 { font-family: 'Playfair Display', serif; color: var(--white); font-size: 1.4rem; margin-bottom: 4px; }
         .header p { color: rgba(255,255,255,0.7); font-size: 0.85rem; }
-        .header .badge {
-            display: inline-block;
-            background: rgba(225,190,124,0.2);
-            border: 1px solid rgba(225,190,124,0.4);
-            color: var(--acent); padding: 3px 12px;
-            border-radius: 12px; font-size: 0.75rem;
-            margin-bottom: 10px;
-        }
+        .badge { display: inline-block; background: rgba(225,190,124,0.2); border: 1px solid rgba(225,190,124,0.4); color: var(--acent); padding: 3px 12px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 10px; }
 
-        .reserva-info {
-            background: var(--white);
-            margin: 16px; border-radius: 12px;
-            padding: 16px 20px;
-            border-left: 4px solid var(--acent);
-            display: none;
-        }
+        .reserva-info { background: var(--white); margin: 16px; border-radius: 12px; padding: 16px 20px; border-left: 4px solid var(--acent); display: none; }
         .reserva-info.visible { display: block; }
-        .reserva-info h3 {
-            color: var(--prim); font-size: 0.85rem;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-        .reserva-row {
-            display: flex; justify-content: space-between;
-            font-size: 0.9rem; padding: 4px 0;
-            border-bottom: 1px solid var(--light);
-        }
+        .reserva-info h3 { color: var(--prim); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .reserva-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 4px 0; border-bottom: 1px solid var(--light); }
         .reserva-row:last-child { border-bottom: none; }
         .reserva-row span:first-child { color: var(--muted); }
         .reserva-row span:last-child { font-weight: 600; color: var(--prim); }
 
-        .seccion {
-            background: var(--white);
-            margin: 12px 16px;
-            border-radius: 12px; padding: 20px;
-        }
-        .seccion h2 {
-            font-size: 0.95rem; font-weight: 700;
-            color: var(--prim); margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--light);
-            display: flex; align-items: center; gap: 8px;
-        }
+        .seccion { background: var(--white); margin: 12px 16px; border-radius: 12px; padding: 20px; }
+        .seccion h2 { font-size: 0.95rem; font-weight: 700; color: var(--prim); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--light); display: flex; align-items: center; gap: 8px; }
 
         .campo { margin-bottom: 16px; }
-        .campo label {
-            display: block; font-size: 0.82rem;
-            font-weight: 600; color: var(--prim);
-            margin-bottom: 6px;
-        }
-        .campo input, .campo select {
-            width: 100%; padding: 12px 14px;
-            border: 2px solid #e8eef2; border-radius: 8px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.95rem; color: var(--text);
-            transition: border-color 0.2s;
-            background: var(--white);
-            -webkit-appearance: none;
-        }
-        .campo input:focus, .campo select:focus {
-            outline: none; border-color: var(--prim);
-        }
-        .campo input.error { border-color: var(--error); }
+        .campo label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--prim); margin-bottom: 6px; }
+        .campo input, .campo select, .campo textarea { width: 100%; padding: 12px 14px; border: 2px solid #e8eef2; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: var(--text); transition: border-color 0.2s; background: var(--white); -webkit-appearance: none; }
+        .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--prim); }
+        .campo textarea { resize: vertical; min-height: 70px; }
+        .campo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        .campo-row {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+        .participante { background: var(--light); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .participante-titulo { font-size: 0.8rem; font-weight: 700; color: var(--prim); margin-bottom: 10px; }
+        #btn-add-part { width: 100%; padding: 10px; background: transparent; border: 2px dashed var(--prim); border-radius: 8px; color: var(--prim); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
 
-        .participante {
-            background: var(--light); border-radius: 8px;
-            padding: 12px; margin-bottom: 10px;
-        }
-        .participante-titulo {
-            font-size: 0.8rem; font-weight: 700;
-            color: var(--prim); margin-bottom: 10px;
-        }
-        #btn-add-part {
-            width: 100%; padding: 10px;
-            background: transparent;
-            border: 2px dashed var(--prim);
-            border-radius: 8px; color: var(--prim);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s;
-        }
-        #btn-add-part:hover { background: var(--light); }
+        /* Cláusulas */
+        .clausulas-box { background: var(--light); border-radius: 8px; padding: 14px; max-height: 200px; overflow-y: auto; font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+        .clausulas-box p { margin-bottom: 5px; }
 
-        .privacidad-check {
-            display: flex; align-items: flex-start; gap: 12px;
-            padding: 14px; background: var(--light);
-            border-radius: 8px;
-        }
-        .privacidad-check input {
-            width: 20px; height: 20px; min-width: 20px;
-            margin-top: 2px; accent-color: var(--prim);
-        }
-        .privacidad-check label {
-            font-size: 0.82rem; line-height: 1.5;
-            color: var(--muted);
-        }
-        .privacidad-check a { color: var(--prim); }
+        /* Checks */
+        .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--light); border-radius: 8px; margin-bottom: 10px; }
+        .check-item input[type="checkbox"] { width: 20px; height: 20px; min-width: 20px; margin-top: 2px; accent-color: var(--prim); cursor: pointer; }
+        .check-item label { font-size: 0.85rem; line-height: 1.5; color: var(--text); cursor: pointer; }
+        .check-item a { color: var(--prim); }
 
-        .firma-container {
-            border: 2px solid var(--prim);
-            border-radius: 10px; overflow: hidden;
-            background: var(--white); margin-bottom: 10px;
-            touch-action: none;
-        }
-        #canvas-firma {
-            display: block; width: 100%;
-            height: 160px; cursor: crosshair;
-        }
-        .firma-btns {
-            display: flex; gap: 8px; margin-bottom: 10px;
-        }
-        .btn-limpiar {
-            flex: 1; padding: 10px;
-            background: var(--light); border: none;
-            border-radius: 8px; color: var(--prim);
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 600; cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .firma-ok {
-            background: #d4edda; color: #155724;
-            border-radius: 8px; padding: 8px 14px;
-            font-size: 0.85rem; display: none;
-        }
+        /* Firma */
+        .firma-container { border: 2px solid var(--prim); border-radius: 10px; overflow: hidden; background: var(--white); margin-bottom: 10px; touch-action: none; }
+        #canvas-firma { display: block; width: 100%; height: 160px; cursor: crosshair; }
+        .btn-limpiar { padding: 10px 20px; background: var(--light); border: none; border-radius: 8px; color: var(--prim); font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+        .firma-ok { background: #d4edda; color: #155724; border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; display: none; }
         .firma-ok.visible { display: block; }
 
-        .btn-guardar {
-            width: calc(100% - 32px); margin: 16px;
-            padding: 18px; background: var(--prim);
-            color: var(--white); border: none;
-            border-radius: 12px; font-family: 'DM Sans', sans-serif;
-            font-size: 1.05rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s;
-            display: block;
-        }
-        .btn-guardar:hover { background: var(--dark); }
+        /* Botón guardar */
+        .btn-guardar { width: calc(100% - 32px); margin: 16px; padding: 18px; background: var(--prim); color: var(--white); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: block; }
         .btn-guardar:disabled { background: #aaa; cursor: not-allowed; }
 
-        .msg {
-            margin: 0 16px 16px; padding: 14px 18px;
-            border-radius: 10px; font-size: 0.9rem;
-            display: none;
-        }
-        .msg.success {
-            background: #d4edda; color: #155724;
-            border: 1px solid #c3e6cb; display: block;
-        }
-        .msg.error {
-            background: #f8d7da; color: #721c24;
-            border: 1px solid #f5c6cb; display: block;
-        }
+        .msg { margin: 0 16px 16px; padding: 14px 18px; border-radius: 10px; font-size: 0.9rem; display: none; }
+        .msg.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
 
-        .exito-screen {
-            display: none; text-align: center;
-            padding: 60px 20px;
-        }
+        /* Éxito */
+        .exito-screen { display: none; text-align: center; padding: 50px 20px; }
         .exito-screen.visible { display: block; }
         .exito-icon { font-size: 4rem; margin-bottom: 16px; }
-        .exito-screen h2 {
-            font-family: 'Playfair Display', serif;
-            color: var(--prim); font-size: 1.8rem;
-            margin-bottom: 12px;
-        }
+        .exito-screen h2 { font-family: 'Playfair Display', serif; color: var(--prim); font-size: 1.8rem; margin-bottom: 12px; }
         .exito-screen p { color: var(--muted); line-height: 1.7; }
-
-        .formulario-completo { display: block; }
-
-        .footer-mini {
-            text-align: center; padding: 20px;
-            font-size: 0.78rem; color: var(--muted);
-        }
-        .footer-mini a { color: var(--prim); }
-        .btn-descarga {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: var(--acent); color: var(--dark);
-            padding: 12px 24px; border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 1rem; font-weight: 700;
-            text-decoration: none; margin-top: 20px;
-            cursor: pointer; border: none;
-        }
+        .btn-descarga { display: inline-flex; align-items: center; gap: 8px; background: var(--acent); color: var(--dark); padding: 14px 28px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; border: none; cursor: pointer; margin-top: 20px; }
         .btn-descarga:hover { background: #d4a832; }
+
+        .footer-mini { text-align: center; padding: 20px; font-size: 0.78rem; color: var(--muted); }
+        .footer-mini a { color: var(--prim); }
+
+        .aviso-actividad { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 14px; font-size: 0.85rem; color: #856404; margin-bottom: 12px; display: none; }
+        .aviso-actividad.visible { display: block; }
     </style>
 </head>
 <body>
@@ -244,8 +105,9 @@
     <div class="reserva-row"><span>Precio</span><span id="ri-precio">—</span></div>
 </div>
 
-<div class="formulario-completo" id="formulario">
+<div id="formulario">
 
+    <!-- DATOS PERSONALES -->
     <div class="seccion">
         <h2>👤 Datos personales</h2>
         <div class="campo">
@@ -278,11 +140,12 @@
         </div>
     </div>
 
+    <!-- MENORES -->
     <div class="seccion">
         <h2>👶 Menores de edad</h2>
         <div class="campo">
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                <input type="checkbox" id="tiene-menores" style="width:18px; height:18px; accent-color:var(--prim);">
+                <input type="checkbox" id="tiene-menores" style="width:18px; height:18px; accent-color:var(--prim);" onchange="toggleMenores()">
                 Hay menores de edad en el grupo
             </label>
         </div>
@@ -297,40 +160,45 @@
                     <input type="text" id="tutor-dni" placeholder="12345678A">
                 </div>
             </div>
+            <div class="campo">
+                <label>Nombre(s) del/los menor(es) *</label>
+                <input type="text" id="menores-nombres" placeholder="Nombre y apellidos de cada menor">
+            </div>
         </div>
     </div>
 
+    <!-- PARTICIPANTES ADICIONALES -->
     <div class="seccion">
-        <h2>👥 Participantes</h2>
-        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">
-            Añade el nombre y DNI de cada participante además del titular.
-        </p>
+        <h2>👥 Participantes adicionales</h2>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">Añade el nombre y DNI de cada participante además del titular.</p>
         <div id="participantes-lista"></div>
-        <button id="btn-add-part" type="button" onclick="addParticipante()">
-            + Añadir participante
-        </button>
+        <button id="btn-add-part" type="button" onclick="addParticipante()">+ Añadir participante</button>
     </div>
 
+    <!-- DATOS DE LA ACTIVIDAD -->
     <div class="seccion">
-        <h2>🚣 Datos del alquiler</h2>
+        <h2>🚣 Datos de la actividad</h2>
         <div class="campo-row">
             <div class="campo">
                 <label>Actividad *</label>
-                <select id="actividad" onchange="calcularPrecioAuto()">
+                <select id="actividad" onchange="onActividadChange()">
                     <option value="">Seleccionar...</option>
-                    <option>Kayak</option>
-                    <option>Hidropedales</option>
-                    <option>Paddle surf</option>
-                    <option>E-Bikes</option>
-                    <option>Equipo de Via Ferrata</option>
-                    <option>Ruta Bisontes</option>
-                    <option>Senderismo</option>
-                    <option>Grupos</option>
+                    <option value="Kayak">Kayak</option>
+                    <option value="Hidropedales">Hidropedales</option>
+                    <option value="Paddle surf">Paddle surf</option>
+                    <option value="Ebikes">E-Bikes</option>
+                    <option value="Ferrata Cistierna">Ferrata Cistierna</option>
+                    <option value="Ferrata Sabero">Ferrata Sabero</option>
+                    <option value="Ferrata Valdeón">Ferrata Valdeón</option>
+                    <option value="Alquiler equipos ferrata">Alquiler equipos ferrata</option>
+                    <option value="Ruta Bisontes">Ruta Bisontes</option>
+                    <option value="Senderismo">Senderismo</option>
+                    <option value="Grupos">Grupos</option>
                 </select>
             </div>
             <div class="campo">
                 <label>Personas *</label>
-                <input type="number" id="cantidad" min="1" max="50" value="1" onchange="calcularPrecioAuto()">
+                <input type="number" id="cantidad" min="1" max="60" value="1" onchange="calcularPrecioAuto()">
             </div>
         </div>
         <div class="campo-row">
@@ -339,15 +207,13 @@
                 <select id="duracion" onchange="calcularPrecioAuto()">
                     <option>1 hora</option>
                     <option>2 horas</option>
-                    <option>3 horas</option>
                     <option>Medio dia</option>
                     <option>Todo el dia</option>
                 </select>
             </div>
             <div class="campo">
                 <label>Precio total (€)</label>
-                <input type="number" id="precio" min="0" step="0.01" value="0"
-                       style="background:#f0f6f8; color:var(--prim); font-weight:700;">
+                <input type="number" id="precio" min="0" step="0.01" value="0" style="background:#f0f6f8; color:var(--prim); font-weight:700;">
             </div>
         </div>
         <div class="campo-row">
@@ -360,57 +226,79 @@
                 <input type="time" id="hora-inicio">
             </div>
         </div>
+
+        <!-- Aviso específico por actividad -->
+        <div class="aviso-actividad" id="aviso-actividad"></div>
     </div>
 
+    <!-- APTITUD FÍSICA -->
     <div class="seccion">
-        <h2>📋 Condiciones generales</h2>
-        <div id="clausulas-lista" style="margin-bottom:16px; font-size:0.82rem; color:var(--muted); line-height:1.8; background:var(--light); border-radius:8px; padding:14px; max-height:220px; overflow-y:auto;"></div>
-        <div class="privacidad-check" style="margin-top:8px;">
-            <input type="checkbox" id="acepta-condiciones" style="width:20px; height:20px; min-width:20px; accent-color:var(--prim);">
-            <label for="acepta-condiciones" style="font-size:0.85rem; line-height:1.5; color:var(--text);">
-                He leído y acepto todas las condiciones generales del contrato de alquiler de material de Ubuntu Aventuras.
+        <h2>💪 Aptitud física y estado de salud</h2>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">
+            Lee atentamente las declaraciones correspondientes a tu actividad y marca cada una para confirmar.
+        </p>
+        <div id="aptitud-checks"></div>
+    </div>
+
+    <!-- CONDICIONES GENERALES -->
+    <div class="seccion">
+        <h2>📋 Condiciones generales y específicas</h2>
+        <div class="clausulas-box" id="clausulas-box"></div>
+        <div class="check-item">
+            <input type="checkbox" id="acepta-condiciones">
+            <label for="acepta-condiciones">
+                He leído y acepto todas las condiciones generales y las condiciones específicas de la actividad contratada con Ubuntu Aventuras.
             </label>
         </div>
     </div>
 
+    <!-- RIESGOS -->
+    <div class="seccion">
+        <h2>⚠️ Asunción de riesgos</h2>
+        <div class="check-item">
+            <input type="checkbox" id="acepta-riesgos">
+            <label for="acepta-riesgos">
+                Declaro conocer y asumir los riesgos inherentes a la práctica de la actividad contratada, incluyendo los derivados de las condiciones meteorológicas, del terreno o del entorno natural. Entiendo que Ubuntu Aventuras puede suspender o interrumpir la actividad si aprecia circunstancias que comprometan la seguridad de los participantes o del grupo, sin que ello genere derecho a indemnización, ofreciéndose en su caso un cambio de fecha.
+            </label>
+        </div>
+    </div>
+
+    <!-- RGPD -->
+    <div class="seccion">
+        <h2>🔒 Protección de datos (RGPD)</h2>
+        <div style="background:var(--light); border-radius:8px; padding:14px; font-size:0.82rem; color:var(--muted); line-height:1.6; margin-bottom:12px;">
+            <strong style="color:var(--prim);">Responsable:</strong> Ubuntu Aventuras · Sergio Guerrero Sánchez · CIF 09806738K · hola@ubuntuaventuras.es<br><br>
+            <strong style="color:var(--prim);">Finalidad:</strong> Gestión del contrato de alquiler o actividad, seguridad de los participantes y cumplimiento de obligaciones legales.<br><br>
+            <strong style="color:var(--prim);">Conservación:</strong> Los datos se conservarán durante el tiempo necesario para cumplir con la finalidad y las obligaciones legales aplicables.<br><br>
+            <strong style="color:var(--prim);">Derechos:</strong> Puedes ejercer tus derechos de acceso, rectificación, supresión, limitación y portabilidad dirigiéndote a hola@ubuntuaventuras.es.<br><br>
+            <strong style="color:var(--prim);">Base legal:</strong> Ejecución del contrato y cumplimiento de obligaciones legales (Art. 6.1.b y 6.1.c RGPD).
+        </div>
+        <div class="check-item">
+            <input type="checkbox" id="acepta-rgpd">
+            <label for="acepta-rgpd">
+                He leído y acepto la <a href="privacidad.html" target="_blank">política de privacidad</a> de Ubuntu Aventuras y consiento el tratamiento de mis datos personales para la gestión de este contrato.
+            </label>
+        </div>
+    </div>
+
+    <!-- FIRMA -->
     <div class="seccion">
         <h2>✍️ Firma</h2>
-        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">
-            Firma con el dedo en el recuadro de abajo.
-        </p>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:12px;">Firma con el dedo en el recuadro.</p>
         <div class="firma-container">
             <canvas id="canvas-firma"></canvas>
         </div>
-        <div class="firma-btns">
-            <button class="btn-limpiar" onclick="limpiarFirma()">🗑️ Borrar firma</button>
-        </div>
+        <button class="btn-limpiar" onclick="limpiarFirma()">🗑️ Borrar firma</button>
         <div class="firma-ok" id="firma-ok">✅ Firma registrada</div>
-    </div>
-
-    <div class="seccion">
-        <h2>🔒 Privacidad</h2>
-        <div class="privacidad-check">
-            <input type="checkbox" id="acepta-privacidad">
-            <label for="acepta-privacidad">
-                He leído y acepto la
-                <a href="privacidad.html" target="_blank">política de privacidad</a>
-                de Ubuntu Aventuras. Consiento el tratamiento de mis datos personales
-                para la gestión del contrato de actividades.
-                <br><br>
-                Responsable: Ubuntu Aventuras · CIF: 09806738K ·
-                hola@ubuntuaventuras.es
-            </label>
-        </div>
     </div>
 
     <button class="btn-guardar" id="btn-guardar" onclick="guardarContrato()">
         💾 Firmar y guardar contrato
     </button>
-
     <div class="msg" id="msg-result"></div>
-
 </div>
 
+<!-- PANTALLA ÉXITO -->
 <div class="exito-screen" id="exito-screen">
     <div class="exito-icon">✅</div>
     <h2>¡Contrato firmado!</h2>
@@ -419,9 +307,7 @@
         Número de referencia: <strong id="contrato-id-ok"></strong>
     </p>
     <br>
-    <button class="btn-descarga" id="btn-descargar-pdf" onclick="descargarPDF()">
-        📄 Descargar mi contrato en PDF
-    </button>
+    <button class="btn-descarga" onclick="descargarPDF()">📄 Descargar mi contrato</button>
     <br><br>
     <p style="font-size:0.85rem;">
         Ubuntu Aventuras te espera.<br>
@@ -439,35 +325,154 @@
 const SUPABASE_URL  = 'https://rhuypwyxoethdezglcah.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXlwd3l4b2V0aGRlemdsY2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODU5MTQsImV4cCI6MjA5MTE2MTkxNH0.-liCMh_uleCJd7cvcN6TTT8-eluYv1GTSKixuq7AZ4k';
 
-const CLAUSULAS = [
-    "El uso de las embarcaciones es recreativo. No se permite su uso deportivo ni competitivo.",
-    "Es obligatorio el uso del chaleco salvavidas en todo momento.",
-    "El arrendatario debe ser mayor de 18 años y será responsable del material alquilado.",
-    "El pago se realiza al inicio mediante efectivo, tarjeta o Bizum.",
-    "La entrega anticipada no conlleva reembolso.",
-    "Se debe respetar el entorno natural y las indicaciones del personal de Ubuntu Aventuras.",
-    "El material debe devolverse en buen estado. En caso de pérdida o daño, se abonará su coste.",
-    "Si se sobrepasa el tiempo en más de 10 minutos, se cobrará una hora adicional completa.",
-    "La empresa se reserva el derecho de suspender la actividad por causas justificadas.",
-    "Ubuntu Aventuras no se responsabiliza de objetos personales perdidos o dañados.",
-    "No se garantiza asistencia en caso de avería durante el uso.",
-    "El cliente se compromete a asumir cualquier sanción derivada de un mal uso del material.",
-    "Menores bajo responsabilidad del tutor. He recibido instrucciones de seguridad y entiendo los riesgos.",
+// ── CONDICIONES POR ACTIVIDAD ──
+const CONDICIONES_ESPECIFICAS = {
+    acuaticas: [
+        "Es obligatorio el uso del chaleco salvavidas en todo momento durante la actividad.",
+        "El uso de las embarcaciones o material acuático es exclusivamente recreativo. Queda prohibido el uso deportivo, competitivo o fuera de las zonas habilitadas.",
+        "El cliente declara saber nadar o haber informado previamente a Ubuntu Aventuras de cualquier circunstancia que requiera adaptación o asistencia específica.",
+        "No se permite el acceso a la actividad bajo los efectos del alcohol, drogas o cualquier sustancia que altere la capacidad de reacción.",
+        "El material debe devolverse en buen estado. Cualquier daño o pérdida será abonado por el cliente.",
+        "Si se sobrepasa el tiempo acordado en más de 10 minutos, se cobrará una hora adicional completa.",
+    ],
+    ebikes: [
+        "El cliente declara saber montar en bicicleta con plena autonomía y no presentar ninguna limitación física que comprometa la conducción segura.",
+        "Es obligatorio respetar la señalización vial y circular únicamente por las rutas habilitadas indicadas por Ubuntu Aventuras.",
+        "Queda prohibido circular bajo los efectos del alcohol, drogas o cualquier sustancia que altere la capacidad de reacción.",
+        "El cliente es responsable del material durante el tiempo de uso. Cualquier daño o pérdida será abonado.",
+        "Ubuntu Aventuras puede interrumpir la actividad si aprecia conducción negligente o peligrosa.",
+    ],
+    ferrata: [
+        "El cliente declara tener experiencia o haber sido informado del nivel de exigencia de la vía ferrata contratada.",
+        "Es obligatorio el uso del equipo de seguridad completo (arnés, casco, set de vía ferrata) en todo momento.",
+        "Se debe seguir en todo momento las indicaciones del guía o del personal de Ubuntu Aventuras.",
+        "Queda expresamente prohibido separarse del grupo o avanzar por zonas no autorizadas.",
+        "Ubuntu Aventuras puede impedir la participación si aprecia que el cliente no reúne las condiciones físicas o técnicas necesarias.",
+    ],
+    senderismo: [
+        "El cliente declara poder realizar caminatas por terreno irregular durante el tiempo previsto de la actividad.",
+        "Es obligatorio llevar calzado adecuado para senderismo y ropa apropiada para las condiciones meteorológicas.",
+        "Se debe seguir en todo momento las indicaciones del guía o del personal de Ubuntu Aventuras.",
+        "Ubuntu Aventuras puede modificar el recorrido o suspender la actividad por condiciones meteorológicas o de seguridad.",
+    ],
+    grupos: [
+        "Las condiciones específicas de la actividad serán las acordadas con Ubuntu Aventuras en el momento de la contratación.",
+        "El responsable del grupo se compromete a trasladar al resto de participantes toda la información relativa a las condiciones y normas de seguridad.",
+    ],
+};
+
+const CONDICIONES_GENERALES = [
+    "Ubuntu Aventuras se reserva el derecho de suspender o interrumpir la actividad por condiciones meteorológicas adversas, por razones de seguridad o por cualquier causa justificada, ofreciendo en su caso un cambio de fecha sin coste adicional.",
+    "Ubuntu Aventuras puede impedir la participación o interrumpir la actividad de cualquier participante si aprecia circunstancias que puedan comprometer su seguridad, la del grupo o el normal desarrollo de la actividad.",
+    "Ubuntu Aventuras no se responsabiliza de los objetos personales perdidos, olvidados o dañados durante el transcurso de la actividad.",
+    "El pago se realiza en el momento de inicio de la actividad, mediante efectivo, tarjeta o Bizum (605 702 670).",
+    "Se debe respetar en todo momento el entorno natural y las indicaciones del personal de Ubuntu Aventuras.",
 ];
 
-// ── RENDERIZAR CLÁUSULAS (lista simple) ──
-const lista = document.getElementById('clausulas-lista');
-CLAUSULAS.forEach((c, i) => {
-    const p = document.createElement('p');
-    p.style.marginBottom = '6px';
-    p.textContent = `${i + 1}. ${c}`;
-    lista.appendChild(p);
-});
+const APTITUD_BASE = [
+    { id: "apt_general", texto: "Declaro encontrarme en condiciones físicas adecuadas para realizar la actividad contratada y no padecer ninguna limitación o circunstancia médica que pueda poner en riesgo mi seguridad, la del grupo o el normal desarrollo de la actividad. En caso de duda, me comprometo a informar previamente a Ubuntu Aventuras." },
+    { id: "apt_alcohol", texto: "Declaro no estar bajo los efectos del alcohol, drogas u otras sustancias que puedan alterar mi capacidad de reacción o coordinación durante la actividad." },
+];
+
+const APTITUD_ESPECIFICA = {
+    acuaticas: { id: "apt_acua", texto: "Para actividades acuáticas: declaro saber nadar o haber informado previamente de cualquier circunstancia que requiera adaptación o asistencia. Entiendo que el chaleco salvavidas es obligatorio en todo momento." },
+    ebikes:    { id: "apt_bike", texto: "Para actividades en bicicleta: declaro saber montar con plena autonomía y no presentar limitaciones físicas que comprometan la conducción segura." },
+    ferrata:   { id: "apt_ferrata", texto: "Para actividades de vía ferrata: declaro conocer las exigencias físicas y técnicas de la actividad y encontrarme en condiciones adecuadas para realizarla." },
+    senderismo:{ id: "apt_sende", texto: "Para rutas a pie: declaro poder realizar caminatas por terreno irregular durante el tiempo previsto de la actividad y llevar el equipamiento adecuado." },
+};
+
+const AVISOS_ACTIVIDAD = {
+    acuaticas: "🌊 Actividad acuática — Chaleco salvavidas obligatorio. Es necesario saber nadar o comunicarlo previamente.",
+    ebikes:    "🚴 Actividad en bicicleta — Es necesario saber montar en bici con autonomía.",
+    ferrata:   "🧗 Vía ferrata — Actividad de montaña con exigencia física media-alta. Equipo de seguridad obligatorio.",
+    senderismo:"🥾 Ruta a pie — Terreno irregular. Lleva calzado adecuado y ropa apropiada.",
+};
+
+const TARIFAS = {
+    "Kayak":        {"1 hora": 10, "2 horas": 18, "Medio dia": 25, "Todo el dia": 30},
+    "Paddle surf":  {"1 hora": 15, "2 horas": 25, "Todo el dia": 30},
+    "Hidropedales": {"1 hora": 30, "2 horas": 50},
+    "Ebikes":       {"1 hora": 15, "Medio dia": 30, "Todo el dia": 60},
+    "Ruta Bisontes":{"1 hora": 65},
+};
+
+function _tipoActividad(act) {
+    if (["Kayak","Hidropedales","Paddle surf"].includes(act)) return "acuaticas";
+    if (act === "Ebikes") return "ebikes";
+    if (act.startsWith("Ferrata") || act === "Alquiler equipos ferrata") return "ferrata";
+    if (["Ruta Bisontes","Senderismo"].includes(act)) return "senderismo";
+    return "grupos";
+}
+
+function onActividadChange() {
+    calcularPrecioAuto();
+    actualizarCondiciones();
+}
+
+function calcularPrecioAuto() {
+    const act = document.getElementById('actividad').value;
+    const dur = document.getElementById('duracion').value;
+    const per = parseInt(document.getElementById('cantidad').value) || 1;
+    const t = TARIFAS[act];
+    if (t && t[dur]) document.getElementById('precio').value = (t[dur] * per).toFixed(2);
+}
+
+function actualizarCondiciones() {
+    const act = document.getElementById('actividad').value;
+    if (!act) return;
+    const tipo = _tipoActividad(act);
+
+    // Aviso
+    const aviso = document.getElementById('aviso-actividad');
+    if (AVISOS_ACTIVIDAD[tipo]) {
+        aviso.textContent = AVISOS_ACTIVIDAD[tipo];
+        aviso.classList.add('visible');
+    } else {
+        aviso.classList.remove('visible');
+    }
+
+    // Cláusulas
+    const box = document.getElementById('clausulas-box');
+    box.innerHTML = '';
+    const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
+    const todas = [...especificas, ...CONDICIONES_GENERALES];
+    todas.forEach((c, i) => {
+        const p = document.createElement('p');
+        p.textContent = `${i+1}. ${c}`;
+        box.appendChild(p);
+    });
+
+    // Aptitud física
+    const cont = document.getElementById('aptitud-checks');
+    cont.innerHTML = '';
+    const checks = [...APTITUD_BASE];
+    if (APTITUD_ESPECIFICA[tipo]) checks.push(APTITUD_ESPECIFICA[tipo]);
+
+    // Si hay menores, añadir declaración del tutor
+    if (document.getElementById('tiene-menores').checked) {
+        checks.push({
+            id: "apt_menor",
+            texto: "Como tutor legal, declaro conocer las características de la actividad y autorizo expresamente la participación del menor/es indicados, manifestando que se encuentran en condiciones físicas adecuadas para realizarla."
+        });
+    }
+
+    checks.forEach(ch => {
+        const div = document.createElement('div');
+        div.className = 'check-item';
+        div.innerHTML = `
+            <input type="checkbox" id="${ch.id}">
+            <label for="${ch.id}">${ch.texto}</label>
+        `;
+        cont.appendChild(div);
+    });
+}
 
 // ── MENORES ──
-document.getElementById('tiene-menores').addEventListener('change', function() {
-    document.getElementById('tutor-fields').style.display = this.checked ? 'block' : 'none';
-});
+function toggleMenores() {
+    const checked = document.getElementById('tiene-menores').checked;
+    document.getElementById('tutor-fields').style.display = checked ? 'block' : 'none';
+    actualizarCondiciones();
+}
 
 // ── PARTICIPANTES ──
 let numPart = 0;
@@ -475,111 +480,69 @@ function addParticipante() {
     numPart++;
     const div = document.createElement('div');
     div.className = 'participante';
-    div.id = `part-${numPart}`;
     div.innerHTML = `
         <div class="participante-titulo">Participante ${numPart}</div>
         <div class="campo-row">
-            <div class="campo">
-                <label>Nombre completo</label>
-                <input type="text" id="part-nombre-${numPart}" placeholder="Nombre y apellidos">
-            </div>
-            <div class="campo">
-                <label>DNI / Pasaporte</label>
-                <input type="text" id="part-dni-${numPart}" placeholder="12345678A">
-            </div>
-        </div>
-    `;
+            <div class="campo"><label>Nombre</label><input type="text" id="part-nombre-${numPart}" placeholder="Nombre y apellidos"></div>
+            <div class="campo"><label>DNI</label><input type="text" id="part-dni-${numPart}" placeholder="12345678A"></div>
+        </div>`;
     document.getElementById('participantes-lista').appendChild(div);
 }
 
-// ── PRECIO AUTOMÁTICO ──
-const TARIFAS = {
-    "Kayak":        {"1 hora": 10, "2 horas": 18, "Todo el dia": 30},
-    "Paddle surf":  {"1 hora": 15, "2 horas": 25, "Todo el dia": 30},
-    "Hidropedales": {"1 hora": 30, "2 horas": 50},
-    "E-Bikes":      {"1 hora": 15, "Medio dia": 30, "Todo el dia": 60},
-    "Ruta Bisontes":{"1 hora": 65},
-    "Equipo de Via Ferrata": {"1 hora": 55, "2 horas": 55, "Medio dia": 55, "Todo el dia": 55},
-};
-
-function calcularPrecioAuto() {
-    const actividad = document.getElementById('actividad').value;
-    const duracion  = document.getElementById('duracion').value;
-    const personas  = parseInt(document.getElementById('cantidad').value) || 1;
-    const tarifaAct = TARIFAS[actividad];
-    if (tarifaAct) {
-        const precio_unit = tarifaAct[duracion] || Object.values(tarifaAct)[0];
-        document.getElementById('precio').value = (precio_unit * personas).toFixed(2);
-    }
-}
-
-// ── FECHA Y HORA ACTUALES POR DEFECTO ──
+// ── FECHA Y HORA ACTUALES ──
 (function() {
     const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm   = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd   = String(hoy.getDate()).padStart(2, '0');
-    const hh   = String(hoy.getHours()).padStart(2, '0');
-    const min  = String(hoy.getMinutes()).padStart(2, '0');
-    document.getElementById('fecha-actividad').value = `${yyyy}-${mm}-${dd}`;
-    document.getElementById('hora-inicio').value = `${hh}:${min}`;
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('fecha-actividad').value =
+        `${hoy.getFullYear()}-${pad(hoy.getMonth()+1)}-${pad(hoy.getDate())}`;
+    document.getElementById('hora-inicio').value =
+        `${pad(hoy.getHours())}:${pad(hoy.getMinutes())}`;
 })();
 
 // ── CARGAR RESERVA DESDE URL ──
 const params = new URLSearchParams(window.location.search);
 const reservaId = params.get('reserva');
-
 if (reservaId) {
     fetch(`${SUPABASE_URL}/rest/v1/reservas?id=eq.${reservaId}&select=*`, {
-        headers: {
-            'apikey': SUPABASE_ANON,
-            'Authorization': `Bearer ${SUPABASE_ANON}`
-        }
-    })
-    .then(r => r.json())
-    .then(data => {
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }
+    }).then(r => r.json()).then(data => {
         if (data && data[0]) {
             const r = data[0];
             document.getElementById('reserva-info').classList.add('visible');
             document.getElementById('ri-actividad').textContent = r.actividad || '—';
-            document.getElementById('ri-fecha').textContent =
-                r.fecha_actividad ? new Date(r.fecha_actividad).toLocaleDateString('es-ES') : '—';
-            document.getElementById('ri-hora').textContent =
-                r.hora_inicio ? r.hora_inicio.slice(0,5) : '—';
+            document.getElementById('ri-fecha').textContent = r.fecha_actividad ? new Date(r.fecha_actividad).toLocaleDateString('es-ES') : '—';
+            document.getElementById('ri-hora').textContent = r.hora_inicio ? r.hora_inicio.slice(0,5) : '—';
             document.getElementById('ri-personas').textContent = r.personas || '—';
-            document.getElementById('ri-precio').textContent =
-                r.precio ? r.precio + ' €' : '—';
+            document.getElementById('ri-precio').textContent = r.precio ? r.precio + ' €' : '—';
 
-            if (r.nombre)         document.getElementById('nombre').value = r.nombre;
-            if (r.actividad)      document.getElementById('actividad').value = r.actividad;
-            if (r.personas)       document.getElementById('cantidad').value = r.personas;
-            if (r.duracion)       document.getElementById('duracion').value = r.duracion;
-            if (r.precio)         document.getElementById('precio').value = r.precio;
+            if (r.nombre)          document.getElementById('nombre').value = r.nombre;
+            if (r.actividad) {
+                document.getElementById('actividad').value = r.actividad;
+                onActividadChange();
+            }
+            if (r.personas)        document.getElementById('cantidad').value = r.personas;
+            if (r.duracion)        document.getElementById('duracion').value = r.duracion;
+            if (r.precio)          document.getElementById('precio').value = r.precio;
             if (r.fecha_actividad) document.getElementById('fecha-actividad').value = r.fecha_actividad;
-            if (r.hora_inicio)    document.getElementById('hora-inicio').value = r.hora_inicio.slice(0,5);
+            if (r.hora_inicio)     document.getElementById('hora-inicio').value = r.hora_inicio.slice(0,5);
 
             document.getElementById('btn-guardar').dataset.reservaId = r.id;
             document.getElementById('btn-guardar').dataset.reservationId = r.reservation_id || '';
         }
-    })
-    .catch(() => {});
+    }).catch(() => {});
 }
 
 // ── CANVAS FIRMA ──
 const canvas = document.getElementById('canvas-firma');
 const ctx = canvas.getContext('2d');
-let dibujando = false;
-let firmaVacia = true;
+let dibujando = false, firmaVacia = true;
 
 function ajustarCanvas() {
     const rect = canvas.getBoundingClientRect();
     canvas.width  = rect.width  * window.devicePixelRatio;
     canvas.height = rect.height * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    ctx.strokeStyle = '#1a1a1a';
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 }
 ajustarCanvas();
 window.addEventListener('resize', ajustarCanvas);
@@ -589,18 +552,25 @@ function getPos(e) {
     const src = e.touches ? e.touches[0] : e;
     return { x: src.clientX - rect.left, y: src.clientY - rect.top };
 }
-
-canvas.addEventListener('mousedown',  e => { dibujando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); firmaVacia = false; });
-canvas.addEventListener('mousemove',  e => { if (!dibujando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
-canvas.addEventListener('mouseup',    () => { dibujando = false; if (!firmaVacia) document.getElementById('firma-ok').classList.add('visible'); });
-canvas.addEventListener('touchstart', e => { e.preventDefault(); dibujando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); firmaVacia = false; }, {passive:false});
-canvas.addEventListener('touchmove',  e => { e.preventDefault(); if (!dibujando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, {passive:false});
-canvas.addEventListener('touchend',   () => { dibujando = false; if (!firmaVacia) document.getElementById('firma-ok').classList.add('visible'); });
+canvas.addEventListener('mousedown',  e => { dibujando=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); firmaVacia=false; });
+canvas.addEventListener('mousemove',  e => { if(!dibujando) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
+canvas.addEventListener('mouseup',    () => { dibujando=false; if(!firmaVacia) document.getElementById('firma-ok').classList.add('visible'); });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); dibujando=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); firmaVacia=false; }, {passive:false});
+canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!dibujando) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); }, {passive:false});
+canvas.addEventListener('touchend',   () => { dibujando=false; if(!firmaVacia) document.getElementById('firma-ok').classList.add('visible'); });
 
 function limpiarFirma() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     firmaVacia = true;
     document.getElementById('firma-ok').classList.remove('visible');
+}
+
+// ── HASH simple del contenido del contrato (evidencia técnica) ──
+async function _hashContrato(texto) {
+    try {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    } catch(e) { return 'no-disponible'; }
 }
 
 // ── GUARDAR CONTRATO ──
@@ -615,11 +585,17 @@ async function guardarContrato() {
     const provincia = document.getElementById('provincia').value.trim();
     const actividad = document.getElementById('actividad').value;
     const fechaAct  = document.getElementById('fecha-actividad').value;
-    const tieneMenores = document.getElementById('tiene-menores').checked;
-    const tutorNombre  = document.getElementById('tutor-nombre')?.value.trim() || '';
-    const tutorDni     = document.getElementById('tutor-dni')?.value.trim() || '';
-    const aceptaPriv   = document.getElementById('acepta-privacidad').checked;
-    const aceptaCond   = document.getElementById('acepta-condiciones').checked;
+    const tieneMenores  = document.getElementById('tiene-menores').checked;
+    const tutorNombre   = document.getElementById('tutor-nombre')?.value.trim() || '';
+    const tutorDni      = document.getElementById('tutor-dni')?.value.trim() || '';
+    const menoresNombres= document.getElementById('menores-nombres')?.value.trim() || '';
+    const aceptaCond    = document.getElementById('acepta-condiciones').checked;
+    const aceptaRiesgos = document.getElementById('acepta-riesgos').checked;
+    const aceptaRgpd    = document.getElementById('acepta-rgpd').checked;
+
+    // Checks de aptitud
+    const aptitudChecks = document.querySelectorAll('#aptitud-checks input[type="checkbox"]');
+    const todasAptitud  = [...aptitudChecks].every(c => c.checked);
 
     const errores = [];
     if (!nombre)     errores.push('Nombre');
@@ -627,15 +603,18 @@ async function guardarContrato() {
     if (!telefono)   errores.push('Teléfono');
     if (!provincia)  errores.push('Provincia');
     if (!actividad)  errores.push('Actividad');
-    if (!fechaAct)   errores.push('Fecha de actividad');
+    if (!fechaAct)   errores.push('Fecha');
     if (tieneMenores && !tutorNombre) errores.push('Nombre del tutor');
-    if (!aceptaCond) errores.push('Acepta las condiciones generales');
-    if (!aceptaPriv) errores.push('Acepta la política de privacidad');
-    if (firmaVacia)  errores.push('Firma digital');
+    if (tieneMenores && !menoresNombres) errores.push('Nombre del menor');
+    if (!todasAptitud) errores.push('Declaraciones de aptitud física (marca todas)');
+    if (!aceptaCond)   errores.push('Condiciones generales');
+    if (!aceptaRiesgos) errores.push('Asunción de riesgos');
+    if (!aceptaRgpd)   errores.push('Política de privacidad');
+    if (firmaVacia)    errores.push('Firma digital');
 
     if (errores.length > 0) {
         msg.className = 'msg error';
-        msg.textContent = `⚠️ Campos pendientes: ${errores.join(', ')}`;
+        msg.textContent = `⚠️ Pendiente: ${errores.join(', ')}`;
         msg.scrollIntoView({ behavior: 'smooth' });
         return;
     }
@@ -653,29 +632,41 @@ async function guardarContrato() {
     const firmaData = canvas.toDataURL('image/png');
     const ahora = new Date();
 
+    // Contenido para hash
+    const contenidoHash = `${nombre}|${dni}|${actividad}|${fechaAct}|${ahora.toISOString()}`;
+    const hashContrato = await _hashContrato(contenidoHash);
+
+    const tipo = _tipoActividad(actividad);
+    const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
+    const todasCondiciones = [...especificas, ...CONDICIONES_GENERALES];
+
     const datos = {
-        reservation_id:   btn.dataset.reservationId || null,
-        actividad:        actividad,
-        cantidad:         parseInt(document.getElementById('cantidad').value) || 1,
-        duracion:         document.getElementById('duracion').value,
-        precio:           parseFloat(document.getElementById('precio').value) || 0,
-        hora_inicio:      document.getElementById('hora-inicio').value + ':00',
-        hora_fin:         null,
-        fecha_actividad:  fechaAct,
-        nombre:           nombre,
-        provincia:        provincia,
-        telefono:         telefono,
-        email:            document.getElementById('email').value.trim() || null,
-        dni:              dni,
-        fecha_nacimiento: document.getElementById('fecha-nac').value || null,
-        tiene_menores:    tieneMenores,
-        tutor_nombre:     tutorNombre || null,
-        tutor_dni:        tutorDni || null,
-        participantes:    participantes,
-        firma_svg:        firmaData,
-        firmado_en:       ahora.toISOString(),
-        ip_firmante:      'web-cliente',
-        creado_por:       'cliente-web',
+        reservation_id:    btn.dataset.reservationId || null,
+        actividad,
+        cantidad:          parseInt(document.getElementById('cantidad').value) || 1,
+        duracion:          document.getElementById('duracion').value,
+        precio:            parseFloat(document.getElementById('precio').value) || 0,
+        hora_inicio:       document.getElementById('hora-inicio').value + ':00',
+        hora_fin:          null,
+        fecha_actividad:   fechaAct,
+        nombre,
+        provincia,
+        telefono,
+        email:             document.getElementById('email').value.trim() || null,
+        dni,
+        fecha_nacimiento:  document.getElementById('fecha-nac').value || null,
+        tiene_menores:     tieneMenores,
+        tutor_nombre:      tutorNombre || null,
+        tutor_dni:         tutorDni || null,
+        menores_nombres:   menoresNombres || null,
+        participantes,
+        condiciones_texto: todasCondiciones.join(' | '),
+        firma_svg:         firmaData,
+        firmado_en:        ahora.toISOString(),
+        hash_contrato:     hashContrato,
+        ip_firmante:       'web-cliente',
+        creado_por:        'cliente-web',
+        email_enviado:     false,
     };
 
     try {
@@ -694,17 +685,15 @@ async function guardarContrato() {
 
         if (res.ok || res.status === 201) {
             const id = Array.isArray(result) ? result[0]?.id : result?.id;
+            window._contratoFirmado = { ...datos, id };
+            window._firmaDataURL = firmaData;
             document.getElementById('formulario').style.display = 'none';
             document.getElementById('exito-screen').classList.add('visible');
             document.getElementById('contrato-id-ok').textContent = `#${id || '—'}`;
-            // Guardar datos para PDF
-            window._contratoFirmado = { ...datos, id: id };
-            window._firmaDataURL = canvas.toDataURL('image/png');
         } else {
             throw new Error(result?.message || `Error ${res.status}`);
         }
-
-    } catch (err) {
+    } catch(err) {
         msg.className = 'msg error';
         msg.textContent = `❌ Error: ${err.message}. Llámanos al 655 703 034.`;
         btn.disabled = false;
@@ -712,17 +701,16 @@ async function guardarContrato() {
         msg.scrollIntoView({ behavior: 'smooth' });
     }
 }
-// ── DESCARGAR PDF (usa jsPDF desde CDN) ──
+
+// ── DESCARGAR PDF ──
 function descargarPDF() {
     const d = window._contratoFirmado;
     if (!d) return;
-
-    // Cargar jsPDF dinámicamente si no está
     if (typeof window.jspdf === 'undefined') {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-        script.onload = () => _generarPDF(d);
-        document.head.appendChild(script);
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        s.onload = () => _generarPDF(d);
+        document.head.appendChild(s);
     } else {
         _generarPDF(d);
     }
@@ -731,138 +719,103 @@ function descargarPDF() {
 function _generarPDF(d) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-
-    const PRIM  = [46, 91, 107];
-    const ACENT = [225, 190, 124];
-    const LIGHT = [240, 246, 248];
-
+    const PRIM = [46,91,107], ACENT = [225,190,124], LIGHT = [240,246,248];
     let y = 15;
 
     // Cabecera
     doc.setFillColor(...PRIM);
-    doc.rect(0, 0, 210, 28, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('CONTRATO DE ALQUILER — UBUNTU AVENTURAS', 105, 12, { align: 'center' });
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('PTA-LE78 · Tel. 655 703 034 · Bizum: 605 702 670 · hola@ubuntuaventuras.es', 105, 20, { align: 'center' });
-    y = 36;
+    doc.rect(0, 0, 210, 30, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text('CONTRATO DE ACTIVIDAD — UBUNTU AVENTURAS', 105, 12, {align:'center'});
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('PTA-LE78 · Tel. 655 703 034 · Bizum: 605 702 670 · hola@ubuntuaventuras.es', 105, 20, {align:'center'});
+    doc.text(`Nº contrato: #${d.id || '—'}  ·  Firmado: ${new Date(d.firmado_en).toLocaleString('es-ES')}  ·  Hash: ${(d.hash_contrato||'').slice(0,16)}...`, 105, 27, {align:'center'});
+    y = 38;
 
-    // Nº contrato
-    doc.setTextColor(...PRIM);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Contrato nº: #${d.id || '—'}`, 14, y);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-    doc.text(`Firmado: ${new Date(d.firmado_en || Date.now()).toLocaleString('es-ES')}`, 130, y);
-    y += 8;
-
-    // Línea dorada
-    doc.setDrawColor(...ACENT);
-    doc.setLineWidth(0.8);
-    doc.line(14, y, 196, y);
-    y += 6;
-
-    // Sección: datos cliente
-    const seccion = (titulo) => {
+    const seccion = (t) => {
+        if (y > 260) { doc.addPage(); y = 15; }
         doc.setFillColor(...LIGHT);
         doc.rect(14, y, 182, 7, 'F');
-        doc.setTextColor(...PRIM);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9);
-        doc.text(titulo, 16, y + 5);
-        y += 10;
+        doc.setTextColor(...PRIM); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+        doc.text(t, 16, y+5); y += 10;
     };
-
-    const campo = (label, valor) => {
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(...PRIM);
-        doc.setFontSize(8);
-        doc.text(label, 16, y);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(50, 50, 50);
-        doc.text(String(valor || '—'), 70, y);
-        y += 6;
+    const campo = (l, v) => {
+        if (y > 275) { doc.addPage(); y = 15; }
+        doc.setFont('helvetica','bold'); doc.setTextColor(...PRIM); doc.setFontSize(8);
+        doc.text(l, 16, y);
+        doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50);
+        doc.text(String(v||'—'), 65, y); y += 6;
     };
 
     seccion('DATOS DEL CLIENTE');
-    campo('Nombre:', d.nombre);
-    campo('DNI / Pasaporte:', d.dni);
-    campo('Fecha de nacimiento:', d.fecha_nacimiento || '—');
-    campo('Teléfono:', d.telefono);
-    campo('Email:', d.email || '—');
-    campo('Provincia / Ciudad:', d.provincia);
-    y += 2;
+    campo('Nombre:', d.nombre); campo('DNI/Pasaporte:', d.dni);
+    campo('Fecha nacimiento:', d.fecha_nacimiento||'—');
+    campo('Teléfono:', d.telefono); campo('Email:', d.email||'—');
+    campo('Provincia:', d.provincia); y += 2;
+
+    if (d.tiene_menores) {
+        seccion('MENORES DE EDAD');
+        campo('Tutor legal:', d.tutor_nombre||'—'); campo('DNI tutor:', d.tutor_dni||'—');
+        campo('Menor(es):', d.menores_nombres||'—'); y += 2;
+    }
+
+    if (d.participantes && d.participantes.length > 0) {
+        seccion('PARTICIPANTES ADICIONALES');
+        d.participantes.forEach((p,i) => campo(`${i+1}. ${p.nombre}`, `DNI: ${p.dni}`));
+        y += 2;
+    }
 
     seccion('DATOS DE LA ACTIVIDAD');
     campo('Actividad:', d.actividad);
     campo('Fecha:', new Date(d.fecha_actividad).toLocaleDateString('es-ES'));
-    campo('Hora inicio:', (d.hora_inicio || '').slice(0,5));
+    campo('Hora inicio:', (d.hora_inicio||'').slice(0,5));
     campo('Duración:', d.duracion);
     campo('Personas:', d.cantidad);
-    campo('Precio total:', `${parseFloat(d.precio || 0).toFixed(2)} EUR`);
-    y += 2;
+    campo('Precio total:', `${parseFloat(d.precio||0).toFixed(2)} EUR`); y += 2;
 
-    // Condiciones (resumidas)
-    seccion('CONDICIONES GENERALES (aceptadas)');
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(80, 80, 80);
-    doc.setFontSize(7);
-    const clausulas = [
-        "Uso recreativo. Prohibido uso deportivo o competitivo.",
-        "Chaleco salvavidas obligatorio en todo momento.",
-        "Responsable del material alquilado. Mayor de 18 años.",
-        "Pago al inicio: efectivo, tarjeta o Bizum.",
-        "Sin reembolso por entrega anticipada.",
-        "Respetar entorno y personal de Ubuntu Aventuras.",
-        "Material devuelto en buen estado. Daños/pérdidas se abonarán.",
-        "+10 min de retraso = 1 hora adicional completa.",
-        "Empresa puede suspender actividad por causas justificadas.",
-        "No responsabilidad por objetos personales.",
-        "Sin garantía de asistencia en averías.",
-        "El cliente asume sanciones por mal uso.",
-        "Menores bajo responsabilidad del tutor legal.",
-    ];
-    clausulas.forEach((c, i) => {
-        if (y > 250) { doc.addPage(); y = 20; }
-        doc.text(`${i+1}. ${c}`, 16, y, { maxWidth: 178 });
-        y += 5;
-    });
-    y += 4;
+    seccion('CONDICIONES ACEPTADAS');
+    doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
+    const tipo = _tipoActividad(d.actividad);
+    const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
+    const todas = [...especificas, ...CONDICIONES_GENERALES];
+    todas.forEach((c,i) => {
+        if (y > 270) { doc.addPage(); y = 15; }
+        const lines = doc.splitTextToSize(`${i+1}. ${c}`, 178);
+        doc.text(lines, 16, y); y += lines.length * 4 + 2;
+    }); y += 2;
 
-    // Firma
-    if (y > 220) { doc.addPage(); y = 20; }
-    seccion('FIRMA DEL CLIENTE');
+    seccion('RIESGOS Y APTITUD FÍSICA');
+    doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
+    const riesgo = "El cliente declara conocer y asumir los riesgos inherentes a la actividad, incluyendo condiciones meteorológicas y del terreno. Declara encontrarse en condiciones físicas adecuadas para realizarla.";
+    const rLines = doc.splitTextToSize(riesgo, 178);
+    doc.text(rLines, 16, y); y += rLines.length * 4 + 4;
+
+    seccion('PROTECCIÓN DE DATOS (RGPD)');
+    doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
+    const rgpd = "Responsable: Ubuntu Aventuras · Sergio Guerrero Sánchez · CIF 09806738K. Finalidad: gestión del contrato y seguridad. Derechos: hola@ubuntuaventuras.es. Base legal: Art. 6.1.b y 6.1.c RGPD.";
+    const rg = doc.splitTextToSize(rgpd, 178);
+    doc.text(rg, 16, y); y += rg.length * 4 + 4;
+
+    if (y > 220) { doc.addPage(); y = 15; }
+    seccion('FIRMA DIGITAL');
     const firma = window._firmaDataURL;
     if (firma && firma.startsWith('data:image')) {
-        try {
-            doc.addImage(firma, 'PNG', 14, y, 60, 20);
-        } catch(e) {}
+        try { doc.addImage(firma, 'PNG', 14, y, 60, 22); } catch(e) {}
     }
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(80, 80, 80);
-    doc.text(`${d.nombre || ''} — Firmado digitalmente`, 14, y + 25);
-    y += 32;
+    y += 26;
+    doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80); doc.setFontSize(8);
+    doc.text(`${d.nombre} — Firmado digitalmente el ${new Date(d.firmado_en).toLocaleString('es-ES')}`, 14, y); y += 5;
+    doc.setFontSize(7); doc.setTextColor(130,130,130);
+    doc.text(`Hash SHA-256: ${d.hash_contrato||'—'}`, 14, y); y += 8;
 
-    // Footer
-    doc.setDrawColor(...ACENT);
-    doc.line(14, y, 196, y);
-    y += 5;
-    doc.setFontSize(7);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Ubuntu Aventuras · CIF 09806738K · Carretera Riaño-Verdiago, 24960 Verdiago (León)', 105, y, { align: 'center' });
+    doc.setDrawColor(...ACENT); doc.setLineWidth(0.8); doc.line(14, y, 196, y); y += 5;
+    doc.setFontSize(7); doc.setTextColor(150,150,150);
+    doc.text('Ubuntu Aventuras · CIF 09806738K · Carretera Riaño-Verdiago, 24960 Verdiago (León)', 105, y, {align:'center'});
 
-    doc.save(`contrato_${d.id || 'ubuntu'}_${(d.nombre || '').replace(/\s+/g,'_')}.pdf`);
+    const nombre_archivo = `contrato_${d.id||'ubuntu'}_${(d.nombre||'').replace(/\s+/g,'_')}.pdf`;
+    doc.save(nombre_archivo);
 }
 </script>
 </body>
 </html>
-</script>
-</body>
-</html>
-
