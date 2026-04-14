@@ -86,6 +86,30 @@
 
         .aviso-actividad { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 14px; font-size: 0.85rem; color: #856404; margin-bottom: 12px; display: none; }
         .aviso-actividad.visible { display: block; }
+
+        /* ── RESPONSIVE MÓVIL ── */
+        @media (max-width: 480px) {
+            .campo-row { grid-template-columns: 1fr; gap: 0; }
+            .seccion { padding: 16px 14px; margin: 8px 10px; }
+            .btn-guardar { width: calc(100% - 20px); margin: 10px; padding: 16px; font-size: 1rem; }
+            .msg { margin: 0 10px 12px; }
+            .reserva-info { margin: 10px; }
+            .header h1 { font-size: 1.2rem; }
+            .campo input, .campo select, .campo textarea { font-size: 1rem; padding: 14px 12px; }
+            .campo label { font-size: 0.9rem; margin-bottom: 8px; }
+            .check-item { padding: 14px 12px; }
+            .check-item label { font-size: 0.88rem; }
+            .check-item input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; }
+            #btn-add-part { padding: 14px; font-size: 0.95rem; }
+            .btn-limpiar { width: 100%; padding: 14px; font-size: 0.95rem; }
+            .clausulas-box { font-size: 0.85rem; max-height: 180px; }
+            #canvas-firma { height: 130px; }
+            .btn-descarga { width: 100%; max-width: 340px; justify-content: center; }
+            .exito-screen { padding: 30px 16px; }
+            .exito-screen h2 { font-size: 1.5rem; }
+            .footer-mini { padding: 14px; }
+            .participante { padding: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -660,7 +684,6 @@ async function guardarContrato() {
         tutor_dni:         tutorDni || null,
         menores_nombres:   menoresNombres || null,
         participantes,
-        condiciones_texto: todasCondiciones.join(' | '),
         firma_svg:         firmaData,
         firmado_en:        ahora.toISOString(),
         hash_contrato:     hashContrato,
