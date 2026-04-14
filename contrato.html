@@ -714,6 +714,10 @@ async function guardarContrato() {
             const id = Array.isArray(result) ? result[0]?.id : result?.id;
             window._contratoFirmado = { ...datos, id };
             window._firmaDataURL = firmaData;
+
+            // Generar y subir PDF a Supabase Storage
+            _subirPDFStorage(id, datos, firmaData).catch(() => {});
+
             document.getElementById('formulario').style.display = 'none';
             document.getElementById('exito-screen').classList.add('visible');
             document.getElementById('contrato-id-ok').textContent = `#${id || '—'}`;
@@ -726,6 +730,160 @@ async function guardarContrato() {
         btn.disabled = false;
         btn.textContent = '💾 Firmar y guardar contrato';
         msg.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// ── SUBIR PDF A SUPABASE STORAGE ──
+async function _subirPDFStorage(contratoId, datos, firmaData) {
+    // Cargar jsPDF si no está
+    if (typeof window.jspdf === 'undefined') {
+        await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+            s.onload = resolve; s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+
+    // Generar PDF como blob
+    const pdfBlob = await _generarPDFBlob({ ...datos, id: contratoId }, firmaData);
+    if (!pdfBlob) return;
+
+    const nombre = (datos.nombre || 'cliente').replace(/\s+/g, '_');
+    const fileName = `contrato_${contratoId}_${nombre}.pdf`;
+    const filePath = `${contratoId}/${fileName}`;
+
+    // Subir a Supabase Storage
+    const uploadRes = await fetch(
+        `${SUPABASE_URL}/storage/v1/object/contratos-pdf/${filePath}`,
+        {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_ANON,
+                'Authorization': `Bearer ${SUPABASE_ANON}`,
+                'Content-Type': 'application/pdf',
+                'x-upsert': 'true',
+            },
+            body: pdfBlob,
+        }
+    );
+
+    if (uploadRes.ok) {
+        // Guardar ruta del PDF en el contrato
+        await fetch(`${SUPABASE_URL}/rest/v1/contratos?id=eq.${contratoId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON,
+                'Authorization': `Bearer ${SUPABASE_ANON}`,
+            },
+            body: JSON.stringify({ pdf_path: filePath }),
+        });
+    }
+}
+
+// Versión que devuelve Blob en lugar de descargar
+async function _generarPDFBlob(d, firmaDataURL) {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const PRIM = [46,91,107], ACENT = [225,190,124], LIGHT = [240,246,248];
+        let y = 15;
+
+        doc.setFillColor(...PRIM);
+        doc.rect(0, 0, 210, 30, 'F');
+        doc.setTextColor(255,255,255);
+        doc.setFontSize(13); doc.setFont('helvetica','bold');
+        doc.text('CONTRATO DE ACTIVIDAD — UBUNTU AVENTURAS', 105, 12, {align:'center'});
+        doc.setFontSize(8); doc.setFont('helvetica','normal');
+        doc.text('PTA-LE78 · Tel. 655 703 034 · Bizum: 605 702 670 · hola@ubuntuaventuras.es', 105, 20, {align:'center'});
+        doc.text(`Nº contrato: #${d.id || '—'}  ·  Firmado: ${new Date(d.firmado_en).toLocaleString('es-ES')}`, 105, 27, {align:'center'});
+        y = 38;
+
+        const seccion = (t) => {
+            if (y > 260) { doc.addPage(); y = 15; }
+            doc.setFillColor(...LIGHT);
+            doc.rect(14, y, 182, 7, 'F');
+            doc.setTextColor(...PRIM); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+            doc.text(t, 16, y+5); y += 10;
+        };
+        const campo = (l, v) => {
+            if (y > 275) { doc.addPage(); y = 15; }
+            doc.setFont('helvetica','bold'); doc.setTextColor(...PRIM); doc.setFontSize(8);
+            doc.text(l, 16, y);
+            doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50);
+            doc.text(String(v||'—'), 65, y); y += 6;
+        };
+
+        seccion('DATOS DEL CLIENTE');
+        campo('Nombre:', d.nombre); campo('DNI:', d.dni);
+        campo('Fecha nacimiento:', d.fecha_nacimiento||'—');
+        campo('Teléfono:', d.telefono); campo('Email:', d.email||'—');
+        campo('Provincia:', d.provincia); y += 2;
+
+        if (d.tiene_menores) {
+            seccion('MENORES DE EDAD');
+            campo('Tutor legal:', d.tutor_nombre||'—');
+            campo('DNI tutor:', d.tutor_dni||'—');
+            campo('Menor(es):', d.menores_nombres||'—'); y += 2;
+        }
+
+        if (d.participantes && d.participantes.length > 0) {
+            seccion('PARTICIPANTES ADICIONALES');
+            d.participantes.forEach((p,i) => campo(`${i+1}. ${p.nombre}`, `DNI: ${p.dni}`));
+            y += 2;
+        }
+
+        seccion('DATOS DE LA ACTIVIDAD');
+        campo('Actividad:', d.actividad);
+        campo('Fecha:', new Date(d.fecha_actividad).toLocaleDateString('es-ES'));
+        campo('Hora inicio:', (d.hora_inicio||'').slice(0,5));
+        campo('Duración:', d.duracion);
+        campo('Personas:', d.cantidad);
+        campo('Precio total:', `${parseFloat(d.precio||0).toFixed(2)} EUR`); y += 2;
+
+        seccion('CONDICIONES ACEPTADAS');
+        doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
+        const tipo = _tipoActividad(d.actividad);
+        const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
+        const todas = [...especificas, ...CONDICIONES_GENERALES];
+        todas.forEach((c,i) => {
+            if (y > 270) { doc.addPage(); y = 15; }
+            const lines = doc.splitTextToSize(`${i+1}. ${c}`, 178);
+            doc.text(lines, 16, y); y += lines.length * 4 + 2;
+        }); y += 2;
+
+        seccion('RIESGOS Y APTITUD FÍSICA');
+        doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
+        const riesgo = "El cliente declara conocer y asumir los riesgos inherentes a la actividad. Declara encontrarse en condiciones físicas adecuadas para realizarla.";
+        const rLines = doc.splitTextToSize(riesgo, 178);
+        doc.text(rLines, 16, y); y += rLines.length * 4 + 4;
+
+        seccion('PROTECCIÓN DE DATOS (RGPD)');
+        doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
+        const rgpd = "Responsable: Ubuntu Aventuras · CIF 09806738K. Finalidad: gestión del contrato. Derechos: hola@ubuntuaventuras.es. Base legal: Art. 6.1.b y 6.1.c RGPD.";
+        const rg = doc.splitTextToSize(rgpd, 178);
+        doc.text(rg, 16, y); y += rg.length * 4 + 4;
+
+        if (y > 220) { doc.addPage(); y = 15; }
+        seccion('FIRMA DIGITAL');
+        const firma = firmaDataURL || window._firmaDataURL;
+        if (firma && firma.startsWith('data:image')) {
+            try { doc.addImage(firma, 'PNG', 14, y, 60, 22); } catch(e) {}
+        }
+        y += 26;
+        doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80); doc.setFontSize(8);
+        doc.text(`${d.nombre} — Firmado digitalmente el ${new Date(d.firmado_en).toLocaleString('es-ES')}`, 14, y); y += 5;
+        doc.setFontSize(7); doc.setTextColor(130,130,130);
+        doc.text(`Hash SHA-256: ${d.hash_contrato||'—'}`, 14, y); y += 8;
+
+        doc.setDrawColor(...ACENT); doc.setLineWidth(0.8); doc.line(14, y, 196, y); y += 5;
+        doc.setFontSize(7); doc.setTextColor(150,150,150);
+        doc.text('Ubuntu Aventuras · CIF 09806738K · Carretera Riaño-Verdiago, 24960 Verdiago (León)', 105, y, {align:'center'});
+
+        return doc.output('blob');
+    } catch(e) {
+        return null;
     }
 }
 
@@ -744,6 +902,17 @@ function descargarPDF() {
 }
 
 function _generarPDF(d) {
+    _generarPDFBlob(d, window._firmaDataURL).then(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `contrato_${d.id||'ubuntu'}_${(d.nombre||'').replace(/\s+/g,'_')}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+}
+function _generarPDF_unused(d) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
     const PRIM = [46,91,107], ACENT = [225,190,124], LIGHT = [240,246,248];
