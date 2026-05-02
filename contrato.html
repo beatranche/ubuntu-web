@@ -48,31 +48,26 @@
         .participante-titulo { font-size: 0.8rem; font-weight: 700; color: var(--prim); margin-bottom: 10px; }
         #btn-add-part { width: 100%; padding: 10px; background: transparent; border: 2px dashed var(--prim); border-radius: 8px; color: var(--prim); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
 
-        /* Cláusulas */
         .clausulas-box { background: var(--light); border-radius: 8px; padding: 14px; max-height: 200px; overflow-y: auto; font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
         .clausulas-box p { margin-bottom: 5px; }
 
-        /* Checks */
         .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--light); border-radius: 8px; margin-bottom: 10px; }
         .check-item input[type="checkbox"] { width: 20px; height: 20px; min-width: 20px; margin-top: 2px; accent-color: var(--prim); cursor: pointer; }
         .check-item label { font-size: 0.85rem; line-height: 1.5; color: var(--text); cursor: pointer; }
         .check-item a { color: var(--prim); }
 
-        /* Firma */
         .firma-container { border: 2px solid var(--prim); border-radius: 10px; overflow: hidden; background: var(--white); margin-bottom: 10px; touch-action: none; }
         #canvas-firma { display: block; width: 100%; height: 160px; cursor: crosshair; }
         .btn-limpiar { padding: 10px 20px; background: var(--light); border: none; border-radius: 8px; color: var(--prim); font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
         .firma-ok { background: #d4edda; color: #155724; border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; display: none; }
         .firma-ok.visible { display: block; }
 
-        /* Botón guardar */
         .btn-guardar { width: calc(100% - 32px); margin: 16px; padding: 18px; background: var(--prim); color: var(--white); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: block; }
         .btn-guardar:disabled { background: #aaa; cursor: not-allowed; }
 
         .msg { margin: 0 16px 16px; padding: 14px 18px; border-radius: 10px; font-size: 0.9rem; display: none; }
         .msg.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
 
-        /* Éxito */
         .exito-screen { display: none; text-align: center; padding: 50px 20px; }
         .exito-screen.visible { display: block; }
         .exito-icon { font-size: 4rem; margin-bottom: 16px; }
@@ -87,7 +82,6 @@
         .aviso-actividad { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 14px; font-size: 0.85rem; color: #856404; margin-bottom: 12px; display: none; }
         .aviso-actividad.visible { display: block; }
 
-        /* ── RESPONSIVE MÓVIL ── */
         @media (max-width: 480px) {
             .campo-row { grid-template-columns: 1fr; gap: 0; }
             .seccion { padding: 16px 14px; margin: 8px 10px; }
@@ -129,7 +123,7 @@
     <div class="reserva-row"><span>Actividad</span><span id="ri-actividad">—</span></div>
     <div class="reserva-row"><span>Fecha</span><span id="ri-fecha">—</span></div>
     <div class="reserva-row"><span>Hora</span><span id="ri-hora">—</span></div>
-    <div class="reserva-row"><span>Personas</span><span id="ri-personas">—</span></div>
+    <div class="reserva-row"><span id="ri-label-cantidad">Personas</span><span id="ri-personas">—</span></div>
     <div class="reserva-row"><span>Precio</span><span id="ri-precio">—</span></div>
 </div>
 
@@ -224,17 +218,20 @@
                     <option value="Grupos">Grupos</option>
                 </select>
             </div>
+            <!-- Label e input de cantidad cambian según actividad -->
             <div class="campo">
-                <label>Personas *</label>
+                <label id="label-cantidad">Personas *</label>
                 <input type="number" id="cantidad" min="1" max="60" value="1" onchange="calcularPrecioAuto()">
             </div>
         </div>
-        <div class="campo-row">
+        <!-- Duración: oculta para actividades sin duración fija -->
+        <div class="campo-row" id="fila-duracion">
             <div class="campo">
                 <label>Duración</label>
                 <select id="duracion" onchange="calcularPrecioAuto()">
                     <option>1 hora</option>
                     <option>2 horas</option>
+                    <option>3 horas</option>
                     <option>Medio dia</option>
                     <option>Todo el dia</option>
                 </select>
@@ -243,6 +240,11 @@
                 <label>Precio total (€)</label>
                 <input type="number" id="precio" min="0" step="0.01" value="0" style="background:#f0f6f8; color:var(--prim); font-weight:700;">
             </div>
+        </div>
+        <!-- Fila precio cuando no hay duración -->
+        <div class="campo" id="fila-precio-solo" style="display:none;">
+            <label>Precio total (€)</label>
+            <input type="number" id="precio-solo" min="0" step="0.01" value="0" style="background:#f0f6f8; color:var(--prim); font-weight:700;" onchange="document.getElementById('precio').value=this.value">
         </div>
         <div class="campo-row">
             <div class="campo">
@@ -255,7 +257,6 @@
             </div>
         </div>
 
-        <!-- Aviso específico por actividad -->
         <div class="aviso-actividad" id="aviso-actividad"></div>
     </div>
 
@@ -353,6 +354,36 @@
 const SUPABASE_URL  = 'https://rhuypwyxoethdezglcah.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJodXlwd3l4b2V0aGRlemdsY2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODU5MTQsImV4cCI6MjA5MTE2MTkxNH0.-liCMh_uleCJd7cvcN6TTT8-eluYv1GTSKixuq7AZ4k';
 
+// ── ACTIVIDADES SIN DURACIÓN FIJA ──
+// (precio no depende de horas, se introduce manualmente o se calcula por unidad)
+const SIN_DURACION = [
+    'Ruta Bisontes', 'Senderismo',
+    'Ferrata Cistierna', 'Ferrata Sabero', 'Ferrata Valdeón',
+    'Alquiler equipos ferrata', 'Grupos'
+];
+
+// ── TARIFAS ──
+// Kayak: precio POR PERSONA
+// Hidropedales: precio POR HIDROPEDAL (unidad completa, no por persona)
+// Paddle surf: precio POR PERSONA
+// Ebikes: precio POR PERSONA
+const TARIFAS = {
+    "Kayak":       { "1 hora": 10, "2 horas": 18, "3 horas": 24, "Medio dia": 25, "Todo el dia": 30 },
+    "Paddle surf": { "1 hora": 15, "2 horas": 25, "Medio dia": 25, "Todo el dia": 30 },
+    "Hidropedales":{ "1 hora": 30, "2 horas": 50 },   // por hidropedal
+    "Ebikes":      { "1 hora": 15, "Medio dia": 30, "Todo el dia": 60 },
+    "Ruta Bisontes":{ "_fijo": 65 },  // precio por persona, sin duración
+};
+
+// Opciones de duración por actividad
+const DURACIONES = {
+    "Kayak":        ["1 hora","2 horas","3 horas","Medio dia","Todo el dia"],
+    "Paddle surf":  ["1 hora","2 horas","Medio dia","Todo el dia"],
+    "Hidropedales": ["1 hora","2 horas"],
+    "Ebikes":       ["1 hora","Medio dia","Todo el dia"],
+    // Las demás no tienen duración
+};
+
 // ── CONDICIONES POR ACTIVIDAD ──
 const CONDICIONES_ESPECIFICAS = {
     acuaticas: [
@@ -416,14 +447,6 @@ const AVISOS_ACTIVIDAD = {
     senderismo:"🥾 Ruta a pie — Terreno irregular. Lleva calzado adecuado y ropa apropiada.",
 };
 
-const TARIFAS = {
-    "Kayak":        {"1 hora": 10, "2 horas": 18, "Medio dia": 25, "Todo el dia": 30},
-    "Paddle surf":  {"1 hora": 15, "2 horas": 25, "Todo el dia": 30},
-    "Hidropedales": {"1 hora": 30, "2 horas": 50},
-    "Ebikes":       {"1 hora": 15, "Medio dia": 30, "Todo el dia": 60},
-    "Ruta Bisontes":{"1 hora": 65},
-};
-
 function _tipoActividad(act) {
     if (["Kayak","Hidropedales","Paddle surf"].includes(act)) return "acuaticas";
     if (act === "Ebikes") return "ebikes";
@@ -432,17 +455,60 @@ function _tipoActividad(act) {
     return "grupos";
 }
 
+// ── ACTUALIZAR FORMULARIO SEGÚN ACTIVIDAD ──
 function onActividadChange() {
+    const act = document.getElementById('actividad').value;
+    const sinDur = SIN_DURACION.includes(act);
+    const esHidro = act === 'Hidropedales';
+
+    // ── Duración: mostrar/ocultar y actualizar opciones ──
+    document.getElementById('fila-duracion').style.display = sinDur ? 'none' : 'grid';
+    document.getElementById('fila-precio-solo').style.display = sinDur ? 'block' : 'none';
+
+    if (!sinDur) {
+        const sel = document.getElementById('duracion');
+        const opciones = DURACIONES[act] || ["1 hora","2 horas","Medio dia","Todo el dia"];
+        const valorActual = sel.value;
+        sel.innerHTML = opciones.map(o => `<option value="${o}">${o}</option>`).join('');
+        if (opciones.includes(valorActual)) sel.value = valorActual;
+    }
+
+    // ── Cantidad: label e input según si es hidropedal ──
+    document.getElementById('label-cantidad').textContent = esHidro ? 'Hidropedales *' : 'Personas *';
+    const inputCant = document.getElementById('cantidad');
+    inputCant.max = esHidro ? 3 : 60;
+    if (esHidro && parseInt(inputCant.value) > 3) inputCant.value = 3;
+    if (!esHidro && parseInt(inputCant.value) < 1) inputCant.value = 1;
+
     calcularPrecioAuto();
     actualizarCondiciones();
 }
 
 function calcularPrecioAuto() {
     const act = document.getElementById('actividad').value;
-    const dur = document.getElementById('duracion').value;
-    const per = parseInt(document.getElementById('cantidad').value) || 1;
+    const sinDur = SIN_DURACION.includes(act);
+    const dur = sinDur ? null : document.getElementById('duracion').value;
+    const cant = parseInt(document.getElementById('cantidad').value) || 1;
     const t = TARIFAS[act];
-    if (t && t[dur]) document.getElementById('precio').value = (t[dur] * per).toFixed(2);
+
+    let precio = 0;
+    if (t) {
+        if (t['_fijo']) {
+            // Precio fijo por persona (Ruta Bisontes)
+            precio = t['_fijo'] * cant;
+        } else if (!sinDur && dur && t[dur] !== undefined) {
+            // Precio por persona (o por hidropedal) × cantidad
+            precio = t[dur] * cant;
+        }
+    }
+
+    // Actualizar el campo correcto
+    if (sinDur) {
+        document.getElementById('precio-solo').value = precio > 0 ? precio.toFixed(2) : document.getElementById('precio-solo').value;
+        document.getElementById('precio').value = document.getElementById('precio-solo').value;
+    } else {
+        if (precio > 0) document.getElementById('precio').value = precio.toFixed(2);
+    }
 }
 
 function actualizarCondiciones() {
@@ -476,7 +542,6 @@ function actualizarCondiciones() {
     const checks = [...APTITUD_BASE];
     if (APTITUD_ESPECIFICA[tipo]) checks.push(APTITUD_ESPECIFICA[tipo]);
 
-    // Si hay menores, añadir declaración del tutor
     if (document.getElementById('tiene-menores').checked) {
         checks.push({
             id: "apt_menor",
@@ -536,10 +601,13 @@ if (reservaId) {
     }).then(r => r.json()).then(data => {
         if (data && data[0]) {
             const r = data[0];
+            const esHidro = r.actividad === 'Hidropedales';
+
             document.getElementById('reserva-info').classList.add('visible');
             document.getElementById('ri-actividad').textContent = r.actividad || '—';
             document.getElementById('ri-fecha').textContent = r.fecha_actividad ? new Date(r.fecha_actividad).toLocaleDateString('es-ES') : '—';
             document.getElementById('ri-hora').textContent = r.hora_inicio ? r.hora_inicio.slice(0,5) : '—';
+            document.getElementById('ri-label-cantidad').textContent = esHidro ? 'Hidropedales' : 'Personas';
             document.getElementById('ri-personas').textContent = r.personas || '—';
             document.getElementById('ri-precio').textContent = r.precio ? r.precio + ' €' : '—';
 
@@ -549,8 +617,14 @@ if (reservaId) {
                 onActividadChange();
             }
             if (r.personas)        document.getElementById('cantidad').value = r.personas;
-            if (r.duracion)        document.getElementById('duracion').value = r.duracion;
-            if (r.precio)          document.getElementById('precio').value = r.precio;
+            if (r.duracion) {
+                const sel = document.getElementById('duracion');
+                if ([...sel.options].some(o => o.value === r.duracion)) sel.value = r.duracion;
+            }
+            if (r.precio) {
+                document.getElementById('precio').value = r.precio;
+                document.getElementById('precio-solo').value = r.precio;
+            }
             if (r.fecha_actividad) document.getElementById('fecha-actividad').value = r.fecha_actividad;
             if (r.hora_inicio)     document.getElementById('hora-inicio').value = r.hora_inicio.slice(0,5);
 
@@ -593,7 +667,7 @@ function limpiarFirma() {
     document.getElementById('firma-ok').classList.remove('visible');
 }
 
-// ── HASH simple del contenido del contrato (evidencia técnica) ──
+// ── HASH ──
 async function _hashContrato(texto) {
     try {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
@@ -607,21 +681,22 @@ async function guardarContrato() {
     const msg = document.getElementById('msg-result');
     msg.className = 'msg';
 
+    const act = document.getElementById('actividad').value;
+    const sinDur = SIN_DURACION.includes(act);
+
     const nombre    = document.getElementById('nombre').value.trim();
     const dni       = document.getElementById('dni').value.trim();
     const telefono  = document.getElementById('telefono').value.trim();
     const provincia = document.getElementById('provincia').value.trim();
-    const actividad = document.getElementById('actividad').value;
     const fechaAct  = document.getElementById('fecha-actividad').value;
-    const tieneMenores  = document.getElementById('tiene-menores').checked;
-    const tutorNombre   = document.getElementById('tutor-nombre')?.value.trim() || '';
-    const tutorDni      = document.getElementById('tutor-dni')?.value.trim() || '';
-    const menoresNombres= document.getElementById('menores-nombres')?.value.trim() || '';
-    const aceptaCond    = document.getElementById('acepta-condiciones').checked;
-    const aceptaRiesgos = document.getElementById('acepta-riesgos').checked;
-    const aceptaRgpd    = document.getElementById('acepta-rgpd').checked;
+    const tieneMenores   = document.getElementById('tiene-menores').checked;
+    const tutorNombre    = document.getElementById('tutor-nombre')?.value.trim() || '';
+    const tutorDni       = document.getElementById('tutor-dni')?.value.trim() || '';
+    const menoresNombres = document.getElementById('menores-nombres')?.value.trim() || '';
+    const aceptaCond     = document.getElementById('acepta-condiciones').checked;
+    const aceptaRiesgos  = document.getElementById('acepta-riesgos').checked;
+    const aceptaRgpd     = document.getElementById('acepta-rgpd').checked;
 
-    // Checks de aptitud
     const aptitudChecks = document.querySelectorAll('#aptitud-checks input[type="checkbox"]');
     const todasAptitud  = [...aptitudChecks].every(c => c.checked);
 
@@ -630,15 +705,15 @@ async function guardarContrato() {
     if (!dni)        errores.push('DNI');
     if (!telefono)   errores.push('Teléfono');
     if (!provincia)  errores.push('Provincia');
-    if (!actividad)  errores.push('Actividad');
+    if (!act)        errores.push('Actividad');
     if (!fechaAct)   errores.push('Fecha');
-    if (tieneMenores && !tutorNombre) errores.push('Nombre del tutor');
+    if (tieneMenores && !tutorNombre)    errores.push('Nombre del tutor');
     if (tieneMenores && !menoresNombres) errores.push('Nombre del menor');
-    if (!todasAptitud) errores.push('Declaraciones de aptitud física (marca todas)');
-    if (!aceptaCond)   errores.push('Condiciones generales');
+    if (!todasAptitud)  errores.push('Declaraciones de aptitud física (marca todas)');
+    if (!aceptaCond)    errores.push('Condiciones generales');
     if (!aceptaRiesgos) errores.push('Asunción de riesgos');
-    if (!aceptaRgpd)   errores.push('Política de privacidad');
-    if (firmaVacia)    errores.push('Firma digital');
+    if (!aceptaRgpd)    errores.push('Política de privacidad');
+    if (firmaVacia)     errores.push('Firma digital');
 
     if (errores.length > 0) {
         msg.className = 'msg error';
@@ -659,21 +734,23 @@ async function guardarContrato() {
 
     const firmaData = canvas.toDataURL('image/png');
     const ahora = new Date();
+    const duracion = sinDur ? null : document.getElementById('duracion').value;
+    const precioVal = sinDur
+        ? parseFloat(document.getElementById('precio-solo').value) || 0
+        : parseFloat(document.getElementById('precio').value) || 0;
 
-    // Contenido para hash
-    const contenidoHash = `${nombre}|${dni}|${actividad}|${fechaAct}|${ahora.toISOString()}`;
+    const contenidoHash = `${nombre}|${dni}|${act}|${fechaAct}|${ahora.toISOString()}`;
     const hashContrato = await _hashContrato(contenidoHash);
 
-    const tipo = _tipoActividad(actividad);
+    const tipo = _tipoActividad(act);
     const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
-    const todasCondiciones = [...especificas, ...CONDICIONES_GENERALES];
 
     const datos = {
         reservation_id:    btn.dataset.reservationId || null,
-        actividad,
+        actividad:         act,
         cantidad:          parseInt(document.getElementById('cantidad').value) || 1,
-        duracion:          document.getElementById('duracion').value,
-        precio:            parseFloat(document.getElementById('precio').value) || 0,
+        duracion:          duracion,
+        precio:            precioVal,
         hora_inicio:       document.getElementById('hora-inicio').value + ':00',
         hora_fin:          null,
         fecha_actividad:   fechaAct,
@@ -715,7 +792,6 @@ async function guardarContrato() {
             window._contratoFirmado = { ...datos, id };
             window._firmaDataURL = firmaData;
 
-            // Generar y subir PDF a Supabase Storage
             _subirPDFStorage(id, datos, firmaData).catch(() => {});
 
             document.getElementById('formulario').style.display = 'none';
@@ -735,7 +811,6 @@ async function guardarContrato() {
 
 // ── SUBIR PDF A SUPABASE STORAGE ──
 async function _subirPDFStorage(contratoId, datos, firmaData) {
-    // Cargar jsPDF si no está
     if (typeof window.jspdf === 'undefined') {
         await new Promise((resolve, reject) => {
             const s = document.createElement('script');
@@ -744,8 +819,6 @@ async function _subirPDFStorage(contratoId, datos, firmaData) {
             document.head.appendChild(s);
         });
     }
-
-    // Generar PDF como blob
     const pdfBlob = await _generarPDFBlob({ ...datos, id: contratoId }, firmaData);
     if (!pdfBlob) return;
 
@@ -753,7 +826,6 @@ async function _subirPDFStorage(contratoId, datos, firmaData) {
     const fileName = `contrato_${contratoId}_${nombre}.pdf`;
     const filePath = `${contratoId}/${fileName}`;
 
-    // Subir a Supabase Storage
     const uploadRes = await fetch(
         `${SUPABASE_URL}/storage/v1/object/contratos-pdf/${filePath}`,
         {
@@ -769,7 +841,6 @@ async function _subirPDFStorage(contratoId, datos, firmaData) {
     );
 
     if (uploadRes.ok) {
-        // Guardar ruta del PDF en el contrato
         await fetch(`${SUPABASE_URL}/rest/v1/contratos?id=eq.${contratoId}`, {
             method: 'PATCH',
             headers: {
@@ -782,7 +853,6 @@ async function _subirPDFStorage(contratoId, datos, firmaData) {
     }
 }
 
-// Versión que devuelve Blob en lugar de descargar
 async function _generarPDFBlob(d, firmaDataURL) {
     try {
         const { jsPDF } = window.jspdf;
@@ -790,7 +860,6 @@ async function _generarPDFBlob(d, firmaDataURL) {
         const PRIM = [46,91,107], ACENT = [225,190,124], LIGHT = [240,246,248];
         let y = 12;
 
-        // ── Cabecera compacta ──
         doc.setFillColor(...PRIM);
         doc.rect(0, 0, 210, 22, 'F');
         doc.setTextColor(255,255,255);
@@ -800,14 +869,12 @@ async function _generarPDFBlob(d, firmaDataURL) {
         doc.text(`#${d.id||'—'} · Firmado: ${new Date(d.firmado_en).toLocaleString('es-ES')} · hola@ubuntuaventuras.es · 655 703 034`, 105, 17, {align:'center'});
         y = 28;
 
-        // ── Helpers ──
         const seccion = (t) => {
             doc.setFillColor(...LIGHT);
             doc.rect(14, y, 182, 5, 'F');
             doc.setTextColor(...PRIM); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
             doc.text(t, 16, y+3.5); y += 7;
         };
-        // Campo en 2 columnas: izq label+valor, der label+valor
         const fila2 = (l1,v1,l2,v2) => {
             doc.setFont('helvetica','bold'); doc.setTextColor(...PRIM); doc.setFontSize(7);
             doc.text(l1, 16, y); doc.text(l2 || '', 110, y);
@@ -817,17 +884,18 @@ async function _generarPDFBlob(d, firmaDataURL) {
             y += 5;
         };
 
-        // ── Datos cliente + actividad en 2 columnas ──
+        // Etiqueta cantidad según actividad
+        const labelCant = d.actividad === 'Hidropedales' ? 'Hidropedales:' : 'Personas:';
+
         seccion('DATOS DEL CLIENTE Y ACTIVIDAD');
-        fila2('Nombre:',   d.nombre,       'Actividad:', d.actividad);
-        fila2('DNI:',      d.dni,          'Fecha:',     new Date(d.fecha_actividad).toLocaleDateString('es-ES'));
-        fila2('F. nacim.:', d.fecha_nacimiento||'—', 'Hora:', (d.hora_inicio||'').slice(0,5));
-        fila2('Teléfono:', d.telefono,     'Duración:',  d.duracion);
-        fila2('Email:',    d.email||'—',   'Personas:',  d.cantidad);
-        fila2('Provincia:', d.provincia,   'Precio:',    `${parseFloat(d.precio||0).toFixed(2)} EUR`);
+        fila2('Nombre:',    d.nombre,      'Actividad:', d.actividad);
+        fila2('DNI:',       d.dni,         'Fecha:',     new Date(d.fecha_actividad).toLocaleDateString('es-ES'));
+        fila2('F. nacim.:',  d.fecha_nacimiento||'—', 'Hora:', (d.hora_inicio||'').slice(0,5));
+        fila2('Teléfono:', d.telefono,    'Duración:',  d.duracion || '—');
+        fila2('Email:',    d.email||'—',  labelCant,    d.cantidad);
+        fila2('Provincia:', d.provincia,  'Precio:',    `${parseFloat(d.precio||0).toFixed(2)} EUR`);
         y += 2;
 
-        // ── Menores (solo si hay) ──
         if (d.tiene_menores && d.tutor_nombre) {
             seccion('MENORES DE EDAD');
             fila2('Tutor:', d.tutor_nombre, 'DNI tutor:', d.tutor_dni||'—');
@@ -835,14 +903,12 @@ async function _generarPDFBlob(d, firmaDataURL) {
             y += 2;
         }
 
-        // ── Participantes (solo si hay) ──
         if (d.participantes && d.participantes.length > 0) {
             seccion('PARTICIPANTES ADICIONALES');
             d.participantes.forEach((p,i) => fila2(`${i+1}. ${p.nombre}`, `DNI: ${p.dni}`, '', ''));
             y += 2;
         }
 
-        // ── Condiciones en 2 columnas ──
         seccion('CONDICIONES GENERALES ACEPTADAS');
         const tipo = _tipoActividad(d.actividad);
         const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
@@ -856,15 +922,11 @@ async function _generarPDFBlob(d, firmaDataURL) {
             const xPos = col === 'L' ? 16 : midX;
             const lines = doc.splitTextToSize(txt, colW);
             const h = lines.length * 3.5 + 1;
-            if (col === 'L') {
-                doc.text(lines, xPos, yL); yL += h;
-            } else {
-                doc.text(lines, xPos, yR); yR += h;
-            }
+            if (col === 'L') { doc.text(lines, xPos, yL); yL += h; }
+            else             { doc.text(lines, xPos, yR); yR += h; }
         });
         y = Math.max(yL, yR) + 3;
 
-        // ── Riesgos + RGPD en línea ──
         seccion('RIESGOS, APTITUD FÍSICA Y PROTECCIÓN DE DATOS');
         doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50); doc.setFontSize(6);
         const textoLegal = "El cliente declara conocer y asumir los riesgos inherentes a la actividad y encontrarse en condiciones físicas adecuadas. " +
@@ -872,7 +934,6 @@ async function _generarPDFBlob(d, firmaDataURL) {
         const legalLines = doc.splitTextToSize(textoLegal, 182);
         doc.text(legalLines, 16, y); y += legalLines.length * 3.5 + 3;
 
-        // ── Firma ──
         seccion('FIRMA DIGITAL');
         const firma = firmaDataURL || window._firmaDataURL;
         const firmaX = 16, firmaW = 55, firmaH = 18;
@@ -886,7 +947,6 @@ async function _generarPDFBlob(d, firmaDataURL) {
         doc.text(`Hash: ${(d.hash_contrato||'—').slice(0,32)}...`, firmaX + firmaW + 6, y + 16);
         y += firmaH + 4;
 
-        // ── Footer ──
         doc.setDrawColor(...ACENT); doc.setLineWidth(0.5); doc.line(14, y, 196, y); y += 4;
         doc.setFontSize(6.5); doc.setTextColor(150,150,150);
         doc.text('Ubuntu Aventuras · CIF 09806738K · Ctra. Riaño-Verdiago, 24960 Verdiago (León) · ubuntuaventuras.es', 105, y, {align:'center'});
@@ -897,7 +957,6 @@ async function _generarPDFBlob(d, firmaDataURL) {
     }
 }
 
-// ── DESCARGAR PDF ──
 function descargarPDF() {
     const d = window._contratoFirmado;
     if (!d) return;
@@ -921,106 +980,6 @@ function _generarPDF(d) {
         a.click();
         URL.revokeObjectURL(url);
     });
-}
-function _generarPDF_unused(d) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-    const PRIM = [46,91,107], ACENT = [225,190,124], LIGHT = [240,246,248];
-    let y = 15;
-
-    // Cabecera
-    doc.setFillColor(...PRIM);
-    doc.rect(0, 0, 210, 30, 'F');
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text('CONTRATO DE ACTIVIDAD — UBUNTU AVENTURAS', 105, 12, {align:'center'});
-    doc.setFontSize(8); doc.setFont('helvetica','normal');
-    doc.text('PTA-LE78 · Tel. 655 703 034 · Bizum: 605 702 670 · hola@ubuntuaventuras.es', 105, 20, {align:'center'});
-    doc.text(`Nº contrato: #${d.id || '—'}  ·  Firmado: ${new Date(d.firmado_en).toLocaleString('es-ES')}  ·  Hash: ${(d.hash_contrato||'').slice(0,16)}...`, 105, 27, {align:'center'});
-    y = 38;
-
-    const seccion = (t) => {
-        if (y > 260) { doc.addPage(); y = 15; }
-        doc.setFillColor(...LIGHT);
-        doc.rect(14, y, 182, 7, 'F');
-        doc.setTextColor(...PRIM); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-        doc.text(t, 16, y+5); y += 10;
-    };
-    const campo = (l, v) => {
-        if (y > 275) { doc.addPage(); y = 15; }
-        doc.setFont('helvetica','bold'); doc.setTextColor(...PRIM); doc.setFontSize(8);
-        doc.text(l, 16, y);
-        doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50);
-        doc.text(String(v||'—'), 65, y); y += 6;
-    };
-
-    seccion('DATOS DEL CLIENTE');
-    campo('Nombre:', d.nombre); campo('DNI/Pasaporte:', d.dni);
-    campo('Fecha nacimiento:', d.fecha_nacimiento||'—');
-    campo('Teléfono:', d.telefono); campo('Email:', d.email||'—');
-    campo('Provincia:', d.provincia); y += 2;
-
-    if (d.tiene_menores) {
-        seccion('MENORES DE EDAD');
-        campo('Tutor legal:', d.tutor_nombre||'—'); campo('DNI tutor:', d.tutor_dni||'—');
-        campo('Menor(es):', d.menores_nombres||'—'); y += 2;
-    }
-
-    if (d.participantes && d.participantes.length > 0) {
-        seccion('PARTICIPANTES ADICIONALES');
-        d.participantes.forEach((p,i) => campo(`${i+1}. ${p.nombre}`, `DNI: ${p.dni}`));
-        y += 2;
-    }
-
-    seccion('DATOS DE LA ACTIVIDAD');
-    campo('Actividad:', d.actividad);
-    campo('Fecha:', new Date(d.fecha_actividad).toLocaleDateString('es-ES'));
-    campo('Hora inicio:', (d.hora_inicio||'').slice(0,5));
-    campo('Duración:', d.duracion);
-    campo('Personas:', d.cantidad);
-    campo('Precio total:', `${parseFloat(d.precio||0).toFixed(2)} EUR`); y += 2;
-
-    seccion('CONDICIONES ACEPTADAS');
-    doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
-    const tipo = _tipoActividad(d.actividad);
-    const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
-    const todas = [...especificas, ...CONDICIONES_GENERALES];
-    todas.forEach((c,i) => {
-        if (y > 270) { doc.addPage(); y = 15; }
-        const lines = doc.splitTextToSize(`${i+1}. ${c}`, 178);
-        doc.text(lines, 16, y); y += lines.length * 4 + 2;
-    }); y += 2;
-
-    seccion('RIESGOS Y APTITUD FÍSICA');
-    doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
-    const riesgo = "El cliente declara conocer y asumir los riesgos inherentes a la actividad, incluyendo condiciones meteorológicas y del terreno. Declara encontrarse en condiciones físicas adecuadas para realizarla.";
-    const rLines = doc.splitTextToSize(riesgo, 178);
-    doc.text(rLines, 16, y); y += rLines.length * 4 + 4;
-
-    seccion('PROTECCIÓN DE DATOS (RGPD)');
-    doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
-    const rgpd = "Responsable: Ubuntu Aventuras · Sergio Guerrero Sánchez · CIF 09806738K. Finalidad: gestión del contrato y seguridad. Derechos: hola@ubuntuaventuras.es. Base legal: Art. 6.1.b y 6.1.c RGPD.";
-    const rg = doc.splitTextToSize(rgpd, 178);
-    doc.text(rg, 16, y); y += rg.length * 4 + 4;
-
-    if (y > 220) { doc.addPage(); y = 15; }
-    seccion('FIRMA DIGITAL');
-    const firma = window._firmaDataURL;
-    if (firma && firma.startsWith('data:image')) {
-        try { doc.addImage(firma, 'PNG', 14, y, 60, 22); } catch(e) {}
-    }
-    y += 26;
-    doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80); doc.setFontSize(8);
-    doc.text(`${d.nombre} — Firmado digitalmente el ${new Date(d.firmado_en).toLocaleString('es-ES')}`, 14, y); y += 5;
-    doc.setFontSize(7); doc.setTextColor(130,130,130);
-    doc.text(`Hash SHA-256: ${d.hash_contrato||'—'}`, 14, y); y += 8;
-
-    doc.setDrawColor(...ACENT); doc.setLineWidth(0.8); doc.line(14, y, 196, y); y += 5;
-    doc.setFontSize(7); doc.setTextColor(150,150,150);
-    doc.text('Ubuntu Aventuras · CIF 09806738K · Carretera Riaño-Verdiago, 24960 Verdiago (León)', 105, y, {align:'center'});
-
-    const nombre_archivo = `contrato_${d.id||'ubuntu'}_${(d.nombre||'').replace(/\s+/g,'_')}.pdf`;
-    doc.save(nombre_archivo);
 }
 </script>
 </body>
