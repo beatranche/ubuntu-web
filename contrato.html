@@ -715,6 +715,30 @@ async function guardarContrato() {
     if (!aceptaRgpd)    errores.push('Política de privacidad');
     if (firmaVacia)     errores.push('Firma digital');
 
+    // ── Validación mayoría de edad ──
+    const fechaNac = document.getElementById('fecha-nac').value;
+    if (!fechaNac) {
+        errores.push('Fecha de nacimiento (obligatoria para verificar mayoría de edad)');
+    } else {
+        const hoy = new Date();
+        const nac = new Date(fechaNac);
+        let edad = hoy.getFullYear() - nac.getFullYear();
+        const cumple = new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate());
+        if (hoy < cumple) edad--;
+        if (edad < 18 && !tieneMenores) {
+            errores.push('Debes ser mayor de 18 años para firmar el contrato. Si eres menor, un tutor legal debe firmar en tu nombre');
+        }
+    }
+
+    // ── Validación formato email (solo si se ha introducido) ──
+    const emailVal = document.getElementById('email').value.trim();
+    if (emailVal) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!emailRegex.test(emailVal)) {
+            errores.push('El email no tiene un formato válido (ej: nombre@dominio.com)');
+        }
+    }
+
     if (errores.length > 0) {
         msg.className = 'msg error';
         msg.textContent = `⚠️ Pendiente: ${errores.join(', ')}`;
