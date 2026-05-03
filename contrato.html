@@ -1321,5 +1321,291 @@ function getActividadesExtra() {
 }
 
 </script>
+<!-- ═══════════════════════════════════════════════════════
+     CORRECCIONES APLICADAS AL PDF DEL CLIENTE:
+     - Sin Bizum en cabecera ni pantalla éxito
+     - Hash SHA-256 completo
+     - Tutor como firmante cuando hay menores
+     - Banner visual ⚠ MENORES DE EDAD en sección datos y firma
+     - Fecha actividad + hora visible en datos del cliente
+     ═══════════════════════════════════════════════════════ -->
+<script>
+
+// ── PATCHES APLICADOS ──
+// Este bloque sobreescribe las funciones que necesitan corrección
+
+// Guardar referencia a la función original
+const _generarPDFBlob_original = _generarPDFBlob;
+
+// Reemplazar con versión corregida
+window._generarPDFBlob = async function(d, firmaDataURL) {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const PRIM  = [46, 91, 107];
+        const ACENT = [225, 190, 124];
+        const LIGHT = [240, 246, 248];
+        const W = 210, M = 14, CW = W - M * 2;
+        let y = 0;
+
+        // Cargar logo
+        let logoImg = null;
+        try {
+            const r = await fetch('https://ubuntuaventuras.github.io/ubuntu-web/logo.png');
+            if (r.ok) {
+                const blob = await r.blob();
+                logoImg = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(blob); });
+            }
+        } catch(e) {}
+
+        // CABECERA — sin Bizum
+        const CAB_H = 30;
+        doc.setFillColor(...PRIM);
+        doc.rect(0, 0, W, CAB_H, 'F');
+        if (logoImg) { try { doc.addImage(logoImg, 'PNG', M, 5, 18, 18); } catch(e) {} }
+        const tx = logoImg ? 120 : W / 2;
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+        doc.text('CONTRATO UBUNTU AVENTURAS · PTA-LE78', tx, 11, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.text('hola@ubuntuaventuras.es · 655 703 034', tx, 18, { align: 'center' });
+        doc.setFontSize(6.5);
+        const firmadoFmt = d.firmado_en ? new Date(d.firmado_en).toLocaleString('es-ES') : '—';
+        doc.text(`Contrato #${d.id || '—'} · Firmado: ${firmadoFmt}`, tx, 25, { align: 'center' });
+        y = CAB_H + 6;
+
+        const checkPage = (h) => { if (y + h > 280) { doc.addPage(); y = 14; } };
+
+        const seccion = (titulo) => {
+            checkPage(10);
+            doc.setFillColor(...LIGHT);
+            doc.rect(M, y, CW, 6, 'F');
+            doc.setDrawColor(...PRIM); doc.setLineWidth(0.4);
+            doc.line(M, y, M, y + 6);
+            doc.setTextColor(...PRIM); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+            doc.text(titulo, M + 3, y + 4.2);
+            y += 8;
+        };
+
+        const fila = (label, valor, xL, xV, ancho) => {
+            doc.setFont('helvetica', 'bold'); doc.setTextColor(...PRIM); doc.setFontSize(7);
+            doc.text(label, xL, y);
+            doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 30, 30);
+            doc.text(String(valor || '—').slice(0, Math.floor(ancho / 2.2)), xV, y);
+        };
+
+        const fila2 = (l1, v1, l2, v2) => {
+            checkPage(6);
+            const mid = M + CW / 2;
+            fila(l1, v1, M, M + 28, CW / 2 - 10);
+            if (l2) fila(l2, v2, mid + 2, mid + 28, CW / 2 - 10);
+            y += 5.5;
+        };
+
+        // DATOS CLIENTE
+        seccion('DATOS DEL CLIENTE');
+        const fechaAct = d.fecha_actividad ? new Date(d.fecha_actividad + 'T12:00:00').toLocaleDateString('es-ES') : '—';
+        const fechaNac = d.fecha_nacimiento ? new Date(d.fecha_nacimiento + 'T12:00:00').toLocaleDateString('es-ES') : '—';
+        fila2('Nombre:', d.nombre, 'DNI/NIE:', d.dni);
+        fila2('F. nacimiento:', fechaNac, 'Teléfono:', d.telefono);
+        fila2('Email:', d.email || '—', 'Provincia:', d.provincia);
+        fila2('Fecha actividad:', fechaAct, 'Hora inicio:', (d.hora_inicio || '').slice(0, 5));
+
+        // MENORES — con banner visual
+        if (d.tiene_menores && d.tutor_nombre) {
+            checkPage(18);
+            // Banner amarillo
+            doc.setFillColor(255, 243, 205);
+            doc.rect(M, y, CW, 7, 'F');
+            doc.setDrawColor(249, 168, 37); doc.setLineWidth(0.7);
+            doc.rect(M, y, CW, 7, 'S');
+            doc.setFont('helvetica', 'bold'); doc.setTextColor(133, 77, 14); doc.setFontSize(7.5);
+            doc.text('⚠  MENORES DE EDAD — EL TUTOR LEGAL FIRMA ESTE CONTRATO', M + 3, y + 4.8);
+            y += 9;
+            fila2('Tutor legal:', d.tutor_nombre, 'DNI tutor:', d.tutor_dni || '—');
+            if (d.menores_nombres) fila2('Menor(es):', d.menores_nombres, '', '');
+            // Declaración tutor
+            checkPage(10);
+            doc.setFont('helvetica', 'italic'); doc.setTextColor(120, 70, 0); doc.setFontSize(6.2);
+            const tutorDecl = 'Como tutor/representante legal firmo este contrato asumiendo plena responsabilidad sobre la participación de los menores indicados y certifico que se encuentran en condiciones físicas adecuadas para la actividad.';
+            const tutorLines = doc.splitTextToSize(tutorDecl, CW);
+            doc.text(tutorLines, M, y); y += tutorLines.length * 3.2 + 3;
+            doc.setTextColor(30, 30, 30);
+        }
+        y += 2;
+
+        // ACTIVIDADES
+        seccion('ACTIVIDADES CONTRATADAS');
+        doc.setFillColor(...PRIM);
+        doc.rect(M, y, CW, 6, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
+        doc.text('Actividad', M + 2, y + 4);
+        doc.text('Cant.', M + 60, y + 4);
+        doc.text('Duración', M + 80, y + 4);
+        doc.text('Hora inicio', M + 115, y + 4);
+        doc.text('Precio', M + 155, y + 4);
+        y += 7;
+
+        const actRow = (act, cant, dur, hora, precio, bg) => {
+            checkPage(7);
+            if (bg) { doc.setFillColor(...bg); doc.rect(M, y - 1, CW, 6, 'F'); }
+            doc.setTextColor(30, 30, 30); doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+            doc.text(String(act || '—'), M + 2, y + 3.5);
+            doc.text(String(cant || '—'), M + 60, y + 3.5);
+            doc.text(String(dur || '—'), M + 80, y + 3.5);
+            doc.text(String(hora || '—').slice(0, 5), M + 115, y + 3.5);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`${parseFloat(precio || 0).toFixed(2)} €`, M + 155, y + 3.5);
+            y += 6;
+        };
+
+        const labelCant = d.actividad === 'Hidropedales' ? `${d.cantidad} hidrop.` : `${d.cantidad} pers.`;
+        actRow(d.actividad, labelCant, d.duracion, (d.hora_inicio || '').slice(0, 5), d.precio, LIGHT);
+
+        const extras = d.actividades_extra || [];
+        extras.forEach((ae, i) => {
+            const bgAe = i % 2 === 0 ? [245, 235, 255] : null;
+            const cantAe = ae.actividad === 'Hidropedales' ? `${ae.cantidad} hidrop.` : `${ae.cantidad} pers.`;
+            actRow(ae.actividad, cantAe, ae.duracion, ae.hora_inicio, ae.precio, bgAe);
+        });
+
+        // Total
+        y += 2; checkPage(9);
+        doc.setFillColor(...ACENT);
+        doc.rect(M, y, CW, 8, 'F');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...PRIM);
+        const totalPrecio = parseFloat(d.precio || 0) + extras.reduce((s, ae) => s + parseFloat(ae.precio || 0), 0);
+        doc.text('PRECIO TOTAL', M + 3, y + 5.5);
+        doc.text(`${totalPrecio.toFixed(2)} EUR`, M + CW - 3, y + 5.5, { align: 'right' });
+        y += 12;
+
+        // PARTICIPANTES
+        const parts = d.participantes || [];
+        if (parts.length > 0) {
+            seccion('PARTICIPANTES ADICIONALES');
+            parts.forEach((p, i) => {
+                checkPage(6);
+                fila2(`${i + 1}. ${p.nombre || '—'}`, `DNI: ${p.dni || '—'}`, '', '');
+            });
+            y += 2;
+        }
+
+        // CONDICIONES
+        seccion('CONDICIONES Y DECLARACIONES');
+        const tipo = _tipoActividad(d.actividad);
+        const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
+        const todas = [...especificas, ...CONDICIONES_GENERALES];
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(50, 50, 50); doc.setFontSize(6);
+        const midX = M + CW / 2 + 2;
+        const colW = CW / 2 - 4;
+        let yL = y, yR = y;
+        todas.forEach((c, i) => {
+            const txt = `${i + 1}. ${c}`;
+            const isL = i % 2 === 0;
+            const xPos = isL ? M : midX;
+            const lines = doc.splitTextToSize(txt, colW);
+            const h = lines.length * 3.3 + 1;
+            checkPage(h);
+            if (isL) { doc.text(lines, xPos, yL); yL += h; }
+            else      { doc.text(lines, xPos, yR); yR += h; }
+        });
+        y = Math.max(yL, yR) + 4;
+
+        // RIESGOS Y RGPD
+        checkPage(14);
+        seccion('DECLARACIONES, RIESGOS Y PROTECCIÓN DE DATOS');
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(50, 50, 50); doc.setFontSize(6);
+        const legal = "Declaro conocer y asumir los riesgos de la actividad y encontrarme en condiciones físicas adecuadas. No estoy bajo efectos de alcohol ni sustancias. " +
+            "Responsable: Ubuntu Aventuras · CIF 09806738K · hola@ubuntuaventuras.es. Finalidad: gestión del contrato. Base legal: Art. 6.1.b RGPD. " +
+            "Derechos de acceso, rectificación y supresión en hola@ubuntuaventuras.es.";
+        const lLines = doc.splitTextToSize(legal, CW);
+        checkPage(lLines.length * 3.3 + 4);
+        doc.text(lLines, M, y); y += lLines.length * 3.3 + 4;
+
+        // FIRMA
+        checkPage(32);
+        seccion('FIRMA DIGITAL');
+        const firma = firmaDataURL || window._firmaDataURL;
+        const fW = 55, fH = 22;
+
+        // Caja de firma con borde
+        doc.setDrawColor(...PRIM); doc.setLineWidth(0.5);
+        doc.setFillColor(...LIGHT);
+        doc.rect(M, y, fW + 2, fH, 'FD');
+        if (firma && firma.startsWith('data:image')) {
+            try { doc.addImage(firma, 'PNG', M + 1, y + 1, fW, fH - 2); } catch(e) {}
+        } else {
+            doc.setTextColor(180, 180, 180); doc.setFontSize(7);
+            doc.text('Firma digital', M + fW / 2, y + fH / 2, { align: 'center' });
+        }
+
+        // Firmante: tutor si hay menores
+        const _firmaNombre = (d.tiene_menores && d.tutor_nombre) ? d.tutor_nombre : (d.nombre || '—');
+        const _firmaDni    = (d.tiene_menores && d.tutor_nombre) ? (d.tutor_dni || '—') : (d.dni || '—');
+        const _firmaRol    = (d.tiene_menores && d.tutor_nombre)
+            ? `Tutor legal de: ${d.menores_nombres || '—'}`
+            : 'Titular del contrato';
+
+        const xInfo = M + fW + 6;
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(...PRIM); doc.setFontSize(8.5);
+        doc.text(_firmaNombre, xInfo, y + 6);
+
+        if (d.tiene_menores && d.tutor_nombre) {
+            doc.setFont('helvetica', 'bold'); doc.setTextColor(133, 77, 14); doc.setFontSize(6.5);
+            doc.text(_firmaRol, xInfo, y + 11);
+            doc.setFont('helvetica', 'normal'); doc.setTextColor(70, 70, 70); doc.setFontSize(6.5);
+            doc.text(`DNI: ${_firmaDni}`, xInfo, y + 16);
+            doc.text(`Firmado: ${firmadoFmt}`, xInfo, y + 21);
+        } else {
+            doc.setFont('helvetica', 'normal'); doc.setTextColor(70, 70, 70); doc.setFontSize(7);
+            doc.text(`DNI: ${_firmaDni}`, xInfo, y + 12);
+            doc.text(`Firmado: ${firmadoFmt}`, xInfo, y + 18);
+        }
+
+        // Hash completo — fuente pequeña debajo de la caja de firma
+        y += fH + 3;
+        checkPage(6);
+        doc.setFontSize(5); doc.setTextColor(160, 160, 160);
+        doc.text(`SHA-256: ${d.hash_contrato || '—'}`, M, y);
+        y += 6;
+
+        // PIE
+        checkPage(8);
+        doc.setDrawColor(...ACENT); doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 4;
+        doc.setFontSize(6); doc.setTextColor(150, 150, 150); doc.setFont('helvetica', 'normal');
+        doc.text('Ubuntu Aventuras · CIF 09806738K · Ctra. Riaño-Verdiago, 24960 Verdiago (León) · ubuntuaventuras.es', W / 2, y, { align: 'center' });
+
+        return doc.output('blob');
+    } catch(e) {
+        console.error('PDF error:', e);
+        return null;
+    }
+};
+
+// Sobreescribir también descargarPDF para usar la nueva función
+function descargarPDF() {
+    const d = window._contratoFirmado;
+    if (!d) return;
+    if (typeof window.jspdf === 'undefined') {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        s.onload = () => _generarPDF(d);
+        document.head.appendChild(s);
+    } else {
+        _generarPDF(d);
+    }
+}
+function _generarPDF(d) {
+    window._generarPDFBlob(d, window._firmaDataURL).then(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `contrato_${d.id||'ubuntu'}_${(d.nombre||'').replace(/\s+/g,'_')}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+}
+</script>
 </body>
 </html>
