@@ -143,7 +143,8 @@
             </div>
             <div class="campo">
                 <label>Fecha de nacimiento *</label>
-                <input type="date" id="fecha-nac">
+                <input type="date" id="fecha-nac" onchange="validarEdad(this)">
+                <div class="campo-msg" id="msg-edad"></div>
             </div>
         </div>
         <div class="campo-row">
@@ -153,7 +154,9 @@
             </div>
             <div class="campo">
                 <label>Email</label>
-                <input type="email" id="email" placeholder="tu@email.com" autocomplete="email">
+                <input type="email" id="email" placeholder="tu@email.com" autocomplete="email"
+                    onblur="validarEmail(this)">
+                <div class="campo-msg" id="msg-email"></div>
             </div>
         </div>
         <div class="campo">
@@ -257,7 +260,29 @@
             </div>
         </div>
 
+        <!-- Bisontes: campos adultos/niños -->
+        <div class="campo-row" id="fila-bisontes">
+            <div class="campo">
+                <label>👨 Adultos (≥12 años) — 59 €/pers.</label>
+                <input type="number" id="bisontes-adultos" min="0" max="30" value="0" onchange="calcBisontes()">
+            </div>
+            <div class="campo">
+                <label>👶 Niños (&lt;12 años) — 49 €/pers.</label>
+                <input type="number" id="bisontes-ninos" min="0" max="30" value="0" onchange="calcBisontes()">
+            </div>
+        </div>
+
         <div class="aviso-actividad" id="aviso-actividad"></div>
+    </div>
+
+    <!-- ACTIVIDADES ADICIONALES -->
+    <div class="seccion">
+        <h2>➕ Actividades adicionales <span style="font-weight:400;font-size:0.8rem;color:var(--muted)">(opcional)</span></h2>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">
+            Si el grupo realiza más de una actividad en el mismo contrato, añádelas aquí.
+        </p>
+        <div id="acts-extra-lista"></div>
+        <button id="btn-add-act" type="button" onclick="addActExtra()">+ Añadir actividad adicional</button>
     </div>
 
     <!-- APTITUD FÍSICA -->
@@ -372,7 +397,7 @@ const TARIFAS = {
     "Paddle surf": { "1 hora": 15, "2 horas": 25, "Medio dia": 25, "Todo el dia": 30 },
     "Hidropedales":{ "1 hora": 30, "2 horas": 50 },   // por hidropedal
     "Ebikes":      { "1 hora": 15, "Medio dia": 30, "Todo el dia": 60 },
-    "Ruta Bisontes":{ "_fijo": 65 },  // precio por persona, sin duración
+    "Ruta Bisontes":{ "_adulto": 59, "_nino": 49 },  // precio diferenciado adultos/niños
 };
 
 // Opciones de duración por actividad
@@ -473,14 +498,21 @@ function onActividadChange() {
         if (opciones.includes(valorActual)) sel.value = valorActual;
     }
 
-    // ── Cantidad: label e input según si es hidropedal ──
+    // ── Cantidad: label e input según actividad ──
+    const esBisontes = act === 'Ruta Bisontes';
     document.getElementById('label-cantidad').textContent = esHidro ? 'Hidropedales *' : 'Personas *';
     const inputCant = document.getElementById('cantidad');
     inputCant.max = esHidro ? 3 : 60;
     if (esHidro && parseInt(inputCant.value) > 3) inputCant.value = 3;
     if (!esHidro && parseInt(inputCant.value) < 1) inputCant.value = 1;
 
+    // Bisontes: mostrar/ocultar fila adultos/niños y ocultar campo cantidad
+    document.getElementById('fila-bisontes').style.display = esBisontes ? 'grid' : 'none';
+    document.querySelector('.campo:has(#cantidad)') &&
+        (document.querySelector('.campo:has(#cantidad)').style.display = esBisontes ? 'none' : 'block');
+
     calcularPrecioAuto();
+    if (esBisontes) calcBisontes();
     actualizarCondiciones();
 }
 
@@ -493,22 +525,28 @@ function calcularPrecioAuto() {
 
     let precio = 0;
     if (t) {
-        if (t['_fijo']) {
-            // Precio fijo por persona (Ruta Bisontes)
-            precio = t['_fijo'] * cant;
+        if (act === 'Ruta Bisontes') {
+            return; // Lo calcula calcBisontes()
         } else if (!sinDur && dur && t[dur] !== undefined) {
-            // Precio por persona (o por hidropedal) × cantidad
             precio = t[dur] * cant;
         }
     }
 
-    // Actualizar el campo correcto
     if (sinDur) {
         document.getElementById('precio-solo').value = precio > 0 ? precio.toFixed(2) : document.getElementById('precio-solo').value;
         document.getElementById('precio').value = document.getElementById('precio-solo').value;
     } else {
         if (precio > 0) document.getElementById('precio').value = precio.toFixed(2);
     }
+}
+
+function calcBisontes() {
+    const adultos = parseInt(document.getElementById('bisontes-adultos').value) || 0;
+    const ninos   = parseInt(document.getElementById('bisontes-ninos').value) || 0;
+    const precio  = adultos * 59 + ninos * 49;
+    document.getElementById('precio-solo').value = precio.toFixed(2);
+    document.getElementById('precio').value = precio.toFixed(2);
+    document.getElementById('cantidad').value = adultos + ninos;
 }
 
 function actualizarCondiciones() {
@@ -769,12 +807,15 @@ async function guardarContrato() {
     const tipo = _tipoActividad(act);
     const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
 
+    const actividadesExtra = getActividadesExtra();
+
     const datos = {
         reservation_id:    btn.dataset.reservationId || null,
         actividad:         act,
         cantidad:          parseInt(document.getElementById('cantidad').value) || 1,
         duracion:          duracion,
         precio:            precioVal,
+        actividades_extra: actividadesExtra.length > 0 ? actividadesExtra : null,
         hora_inicio:       document.getElementById('hora-inicio').value + ':00',
         hora_fin:          null,
         fecha_actividad:   fechaAct,
@@ -933,6 +974,15 @@ async function _generarPDFBlob(d, firmaDataURL) {
             y += 2;
         }
 
+        if (d.actividades_extra && d.actividades_extra.length > 0) {
+            seccion('ACTIVIDADES ADICIONALES');
+            d.actividades_extra.forEach((ae, i) => {
+                const desc = `${ae.actividad} × ${ae.cantidad}${ae.duracion ? ' · ' + ae.duracion : ''} — ${parseFloat(ae.precio||0).toFixed(2)} €`;
+                fila2(`Act. ${i+1}:`, desc, '', '');
+            });
+            y += 2;
+        }
+
         seccion('CONDICIONES GENERALES ACEPTADAS');
         const tipo = _tipoActividad(d.actividad);
         const especificas = CONDICIONES_ESPECIFICAS[tipo] || CONDICIONES_ESPECIFICAS.grupos;
@@ -1005,6 +1055,145 @@ function _generarPDF(d) {
         URL.revokeObjectURL(url);
     });
 }
+
+// ── VALIDACIÓN INLINE ──
+function validarEmail(input) {
+    const val = input.value.trim();
+    const msg = document.getElementById('msg-email');
+    if (!val) { input.className = ''; msg.className = 'campo-msg'; return; }
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
+    input.className = ok ? 'campo-ok' : 'campo-error';
+    msg.className = ok ? 'campo-msg ok' : 'campo-msg error';
+    msg.textContent = ok ? '✅ Email válido' : '❌ Formato incorrecto (ej: nombre@dominio.com)';
+}
+
+function validarEdad(input) {
+    const val = input.value;
+    const msg = document.getElementById('msg-edad');
+    if (!val) { input.className = ''; msg.className = 'campo-msg'; return; }
+    const hoy = new Date();
+    const nac = new Date(val);
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    if (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate())) edad--;
+    const esMenor = document.getElementById('tiene-menores').checked;
+    if (edad < 0 || edad > 120) {
+        input.className = 'campo-error';
+        msg.className = 'campo-msg error';
+        msg.textContent = '❌ Fecha de nacimiento inválida';
+    } else if (edad < 18 && !esMenor) {
+        input.className = 'campo-error';
+        msg.className = 'campo-msg error';
+        msg.textContent = `❌ Menor de edad (${edad} años). Activa la opción de menores y añade un tutor.`;
+    } else {
+        input.className = 'campo-ok';
+        msg.className = 'campo-msg ok';
+        msg.textContent = `✅ ${edad} años`;
+    }
+}
+
+// ── MULTIACTIVIDAD ──
+let numActExtra = 0;
+const ACTS_OPCIONES = ["Kayak","Hidropedales","Paddle surf","Ebikes",
+    "Ferrata Cistierna","Ferrata Sabero","Ferrata Valdeón",
+    "Alquiler equipos ferrata","Ruta Bisontes","Senderismo","Grupos"];
+
+function addActExtra() {
+    numActExtra++;
+    const id = numActExtra;
+    const div = document.createElement('div');
+    div.className = 'act-extra';
+    div.id = `act-extra-${id}`;
+    div.innerHTML = `
+        <div class="act-extra-titulo">Actividad adicional ${id}</div>
+        <button class="btn-del-act" type="button" onclick="delActExtra(${id})" title="Eliminar">✕</button>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Actividad</label>
+                <select id="ae-act-${id}" onchange="onAeChange(${id})">
+                    ${ACTS_OPCIONES.map(a => `<option value="${a}">${a}</option>`).join('')}
+                </select>
+            </div>
+            <div class="campo" id="ae-cant-campo-${id}">
+                <label id="ae-label-cant-${id}">Personas</label>
+                <input type="number" id="ae-cant-${id}" min="1" max="60" value="1" onchange="calcAeTotal()">
+            </div>
+        </div>
+        <div class="campo-row" id="ae-dur-fila-${id}">
+            <div class="campo">
+                <label>Duración</label>
+                <select id="ae-dur-${id}" onchange="calcAeTotal()">
+                    <option>1 hora</option><option>2 horas</option>
+                    <option>3 horas</option><option>Medio dia</option><option>Todo el dia</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Precio extra (€)</label>
+                <input type="number" id="ae-precio-${id}" min="0" step="0.01" value="0"
+                    style="background:#f0f6f8;color:var(--prim);font-weight:700;" readonly>
+            </div>
+        </div>`;
+    document.getElementById('acts-extra-lista').appendChild(div);
+    onAeChange(id);
+}
+
+function delActExtra(id) {
+    const el = document.getElementById(`act-extra-${id}`);
+    if (el) el.remove();
+    calcAeTotal();
+}
+
+function onAeChange(id) {
+    const act = document.getElementById(`ae-act-${id}`).value;
+    const sinDur = SIN_DURACION.includes(act);
+    const esHidro = act === 'Hidropedales';
+    const durFila = document.getElementById(`ae-dur-fila-${id}`);
+    if (durFila) durFila.style.display = sinDur ? 'none' : 'grid';
+    const labelCant = document.getElementById(`ae-label-cant-${id}`);
+    if (labelCant) labelCant.textContent = esHidro ? 'Hidropedales (máx 3)' : 'Personas';
+    const inputCant = document.getElementById(`ae-cant-${id}`);
+    if (inputCant) { inputCant.max = esHidro ? 3 : 60; if (esHidro && inputCant.value > 3) inputCant.value = 3; }
+    // Actualizar opciones duración
+    if (!sinDur) {
+        const sel = document.getElementById(`ae-dur-${id}`);
+        const opts = DURACIONES[act] || ["1 hora","2 horas","Medio dia","Todo el dia"];
+        sel.innerHTML = opts.map(o => `<option>${o}</option>`).join('');
+    }
+    calcAeTotal();
+}
+
+function calcAeTotal() {
+    // Recalcular precio de cada actividad extra
+    document.querySelectorAll('.act-extra').forEach(div => {
+        const id = div.id.replace('act-extra-', '');
+        const act = document.getElementById(`ae-act-${id}`)?.value;
+        const sinDur = SIN_DURACION.includes(act);
+        const dur = sinDur ? null : document.getElementById(`ae-dur-${id}`)?.value;
+        const cant = parseInt(document.getElementById(`ae-cant-${id}`)?.value) || 1;
+        const t = TARIFAS[act] || {};
+        let precio = 0;
+        if (!sinDur && dur && t[dur] !== undefined) precio = t[dur] * cant;
+        const pEl = document.getElementById(`ae-precio-${id}`);
+        if (pEl) pEl.value = precio.toFixed(2);
+    });
+}
+
+function getActividadesExtra() {
+    const lista = [];
+    document.querySelectorAll('.act-extra').forEach(div => {
+        const id = div.id.replace('act-extra-', '');
+        const act = document.getElementById(`ae-act-${id}`)?.value;
+        if (!act) return;
+        const sinDur = SIN_DURACION.includes(act);
+        lista.push({
+            actividad: act,
+            cantidad:  parseInt(document.getElementById(`ae-cant-${id}`)?.value) || 1,
+            duracion:  sinDur ? null : document.getElementById(`ae-dur-${id}`)?.value,
+            precio:    parseFloat(document.getElementById(`ae-precio-${id}`)?.value) || 0,
+        });
+    });
+    return lista;
+}
+
 </script>
 </body>
 </html>
