@@ -104,6 +104,16 @@
             .footer-mini { padding: 14px; }
             .participante { padding: 10px; }
         }
+
+        /* Multiactividad */
+        .act-extra { background: var(--light); border-radius: 8px; padding: 12px; margin-bottom: 10px; position: relative; border-left: 3px solid var(--acent); }
+        .act-extra-titulo { font-size: 0.8rem; font-weight: 700; color: var(--prim); margin-bottom: 10px; }
+        .btn-del-act { position: absolute; top: 8px; right: 8px; background: #f8d7da; border: none;
+            color: var(--error); font-size: 0.8rem; cursor: pointer; padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+        #btn-add-act { width: 100%; padding: 12px; background: transparent; border: 2px dashed var(--acent);
+            border-radius: 8px; color: var(--prim); font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 6px; display: block; }
+        #btn-add-act:hover { background: rgba(225,190,124,0.1); }
     </style>
 </head>
 <body>
@@ -815,7 +825,6 @@ async function guardarContrato() {
         cantidad:          parseInt(document.getElementById('cantidad').value) || 1,
         duracion:          duracion,
         precio:            precioVal,
-        actividades_extra: actividadesExtra.length > 0 ? actividadesExtra : null,
         hora_inicio:       document.getElementById('hora-inicio').value + ':00',
         hora_fin:          null,
         fecha_actividad:   fechaAct,
@@ -858,6 +867,19 @@ async function guardarContrato() {
             window._firmaDataURL = firmaData;
 
             _subirPDFStorage(id, datos, firmaData).catch(() => {});
+
+            // Guardar actividades extra en campo separado (si la columna existe)
+            if (actividadesExtra.length > 0) {
+                fetch(`${SUPABASE_URL}/rest/v1/contratos?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON,
+                        'Authorization': `Bearer ${SUPABASE_ANON}`,
+                    },
+                    body: JSON.stringify({ actividades_extra: actividadesExtra })
+                }).catch(() => {}); // Silencioso si la columna no existe aún
+            }
 
             document.getElementById('formulario').style.display = 'none';
             document.getElementById('exito-screen').classList.add('visible');
@@ -977,7 +999,8 @@ async function _generarPDFBlob(d, firmaDataURL) {
         if (d.actividades_extra && d.actividades_extra.length > 0) {
             seccion('ACTIVIDADES ADICIONALES');
             d.actividades_extra.forEach((ae, i) => {
-                const desc = `${ae.actividad} × ${ae.cantidad}${ae.duracion ? ' · ' + ae.duracion : ''} — ${parseFloat(ae.precio||0).toFixed(2)} €`;
+                const hora = ae.hora_inicio ? ` · Hora: ${ae.hora_inicio}` : '';
+                const desc = `${ae.actividad} × ${ae.cantidad}${ae.duracion ? ' · ' + ae.duracion : ''}${hora} — ${parseFloat(ae.precio||0).toFixed(2)} €`;
                 fila2(`Act. ${i+1}:`, desc, '', '');
             });
             y += 2;
@@ -1100,12 +1123,14 @@ const ACTS_OPCIONES = ["Kayak","Hidropedales","Paddle surf","Ebikes",
 function addActExtra() {
     numActExtra++;
     const id = numActExtra;
+    // Hora inicio: tomar la del contrato principal como punto de partida
+    const horaBase = document.getElementById('hora-inicio').value || '10:00';
     const div = document.createElement('div');
     div.className = 'act-extra';
     div.id = `act-extra-${id}`;
     div.innerHTML = `
-        <div class="act-extra-titulo">Actividad adicional ${id}</div>
-        <button class="btn-del-act" type="button" onclick="delActExtra(${id})" title="Eliminar">✕</button>
+        <div class="act-extra-titulo">➕ Actividad adicional ${id}</div>
+        <button class="btn-del-act" type="button" onclick="delActExtra(${id})" title="Eliminar">✕ Quitar</button>
         <div class="campo-row">
             <div class="campo">
                 <label>Actividad</label>
@@ -1127,9 +1152,20 @@ function addActExtra() {
                 </select>
             </div>
             <div class="campo">
+                <label>Hora inicio</label>
+                <input type="time" id="ae-hora-${id}" value="${horaBase}">
+            </div>
+        </div>
+        <div class="campo-row">
+            <div class="campo">
                 <label>Precio extra (€)</label>
                 <input type="number" id="ae-precio-${id}" min="0" step="0.01" value="0"
                     style="background:#f0f6f8;color:var(--prim);font-weight:700;" readonly>
+            </div>
+            <div class="campo" style="display:flex;align-items:flex-end;padding-bottom:2px;">
+                <small style="color:var(--muted);font-size:0.78rem;">
+                    El precio se calcula automáticamente según la tarifa de la actividad.
+                </small>
             </div>
         </div>`;
     document.getElementById('acts-extra-lista').appendChild(div);
@@ -1185,10 +1221,11 @@ function getActividadesExtra() {
         if (!act) return;
         const sinDur = SIN_DURACION.includes(act);
         lista.push({
-            actividad: act,
-            cantidad:  parseInt(document.getElementById(`ae-cant-${id}`)?.value) || 1,
-            duracion:  sinDur ? null : document.getElementById(`ae-dur-${id}`)?.value,
-            precio:    parseFloat(document.getElementById(`ae-precio-${id}`)?.value) || 0,
+            actividad:   act,
+            cantidad:    parseInt(document.getElementById(`ae-cant-${id}`)?.value) || 1,
+            duracion:    sinDur ? null : document.getElementById(`ae-dur-${id}`)?.value,
+            hora_inicio: document.getElementById(`ae-hora-${id}`)?.value || null,
+            precio:      parseFloat(document.getElementById(`ae-precio-${id}`)?.value) || 0,
         });
     });
     return lista;
