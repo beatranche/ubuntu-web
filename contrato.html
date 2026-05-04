@@ -348,16 +348,16 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const SIN_DURACION = ['Ruta Bisontes','Senderismo','Ferrata Cistierna','Ferrata Sabero','Ferrata Valdeón','Alquiler equipos ferrata','Grupos'];
 
 const TARIFAS = {
-    "Kayak":        {"1 hora":10,"2 horas":18,"3 horas":24,"Medio dia":25,"Todo el dia":30},
-    "Paddle surf":  {"1 hora":15,"2 horas":25,"Medio dia":25,"Todo el dia":30},
+    "Kayak":        {"1 hora":10,"2 horas":18,"3 horas":24,"Todo el dia":30},
+    "Paddle surf":  {"1 hora":15,"2 horas":25,"3 horas":32,"Todo el dia":40},
     "Hidropedales": {"1 hora":30,"2 horas":50},
     "Ebikes":       {"1 hora":15,"Medio dia":30,"Todo el dia":60},
     "Ruta Bisontes":{"_adulto":59,"_nino":49},
 };
 
 const DURACIONES = {
-    "Kayak":       ["1 hora","2 horas","3 horas","Medio dia","Todo el dia"],
-    "Paddle surf": ["1 hora","2 horas","Medio dia","Todo el dia"],
+    "Kayak":       ["1 hora","2 horas","3 horas","Todo el dia"],
+    "Paddle surf": ["1 hora","2 horas","3 horas","Todo el dia"],
     "Hidropedales":["1 hora","2 horas"],
     "Ebikes":      ["1 hora","Medio dia","Todo el dia"],
 };
@@ -401,7 +401,7 @@ const CONDICIONES_GENERALES = [
     "Ubuntu Aventuras se reserva el derecho de suspender o interrumpir la actividad por condiciones meteorológicas adversas, por razones de seguridad o por cualquier causa justificada, ofreciendo en su caso un cambio de fecha sin coste adicional.",
     "Ubuntu Aventuras puede impedir la participación o interrumpir la actividad de cualquier participante si aprecia circunstancias que puedan comprometer su seguridad, la del grupo o el normal desarrollo de la actividad.",
     "Ubuntu Aventuras no se responsabiliza de los objetos personales perdidos, olvidados o dañados durante el transcurso de la actividad.",
-    "El pago se realiza en el momento de inicio de la actividad, mediante efectivo o tarjeta.",
+    "El pago se realiza en el momento de inicio de la actividad, mediante efectivo o tarjeta.",  // sin Bizum
     "Se debe respetar en todo momento el entorno natural y las indicaciones del personal de Ubuntu Aventuras.",
 ];
 
@@ -794,203 +794,279 @@ async function _generarPDFBlob(d, firmaDataURL) {
     try {
         const {jsPDF} = window.jspdf;
         const doc = new jsPDF({unit:'mm', format:'a4'});
-        const PRIM=[46,91,107], ACENT=[225,190,124], LIGHT=[240,246,248];
+
+        // ── Colores ──
+        const C_PRIM  = [46,  91, 107];   // #2e5b6b
+        const C_ACENT = [225,190, 124];   // #e1be7c
+        const C_LIGHT = [240,246, 248];   // #f0f6f8
+        const C_WARN  = [255,243, 205];   // amarillo menores
+        const C_WARN_B= [249,168,  37];   // borde menores
+        const C_WARN_T= [133, 77,  14];   // texto menores
+        const C_GREY  = [120,120, 120];
+        const C_DARK  = [30,  30,  30];
         const W=210, M=14, CW=W-M*2;
         let y=0;
 
-        let logoImg = null;
+        // ── Logo ──
+        let logoImg=null;
         try {
-            const r = await fetch('https://ubuntuaventuras.github.io/ubuntu-web/logo.png');
-            if (r.ok) {
-                const blob = await r.blob();
-                logoImg = await new Promise(res => { const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(blob); });
-            }
-        } catch(e) {}
+            const r=await fetch('https://ubuntuaventuras.github.io/ubuntu-web/logo.png');
+            if(r.ok){const bl=await r.blob();logoImg=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(bl);});}
+        } catch(e){}
 
-        // CABECERA — sin Bizum
-        const CAB_H=30;
-        doc.setFillColor(...PRIM); doc.rect(0,0,W,CAB_H,'F');
-        if (logoImg) { try { doc.addImage(logoImg,'PNG',M,5,18,18); } catch(e){} }
-        const tx = logoImg ? 120 : W/2;
+        // ══════════════════════════════════════
+        // CABECERA
+        // ══════════════════════════════════════
+        doc.setFillColor(...C_PRIM);
+        doc.rect(0,0,W,32,'F');
+        if(logoImg){try{doc.addImage(logoImg,'PNG',M,6,18,18);}catch(e){}}
+        const tx=logoImg?M+24:W/2;
+        const tAlign=logoImg?'left':'center';
         doc.setTextColor(255,255,255);
-        doc.setFont('helvetica','bold'); doc.setFontSize(11);
-        doc.text('CONTRATO UBUNTU AVENTURAS - PTA-LE78', tx, 11, {align:'center'});
-        doc.setFont('helvetica','normal'); doc.setFontSize(7);
-        doc.text('hola@ubuntuaventuras.es - 655 703 034', tx, 18, {align:'center'});
+        doc.setFont('helvetica','bold'); doc.setFontSize(12);
+        doc.text('CONTRATO DE ACTIVIDAD', tx, 13, {align:tAlign});
+        doc.setFont('helvetica','normal'); doc.setFontSize(8);
+        doc.text('Ubuntu Aventuras - PTA-LE78', tx, 19, {align:tAlign});
         doc.setFontSize(6.5);
+        doc.text('hola@ubuntuaventuras.es   ·   655 703 034', tx, 24, {align:tAlign});
         const firmadoFmt = d.firmado_en ? new Date(d.firmado_en).toLocaleString('es-ES') : '-';
-        doc.text(`Contrato #${d.id||'-'} - Firmado: ${firmadoFmt}`, tx, 25, {align:'center'});
-        y = CAB_H+6;
+        doc.setFontSize(6); doc.setTextColor(200,220,230);
+        doc.text('Contrato #'+(d.id||'-')+'   ·   Firmado: '+firmadoFmt, W-M, 29, {align:'right'});
+        y=38;
 
-        const checkPage = h => { if (y+h>280) { doc.addPage(); y=14; } };
+        // ── Helpers ──
+        const chk = h => { if(y+h>282){doc.addPage();y=14;} };
 
-        const seccion = titulo => {
-            checkPage(10);
-            doc.setFillColor(...LIGHT); doc.rect(M,y,CW,6,'F');
-            doc.setDrawColor(...PRIM); doc.setLineWidth(0.4); doc.line(M,y,M,y+6);
-            doc.setTextColor(...PRIM); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-            doc.text(titulo, M+3, y+4.2); y+=8;
+        const secHdr = titulo => {
+            chk(10);
+            doc.setFillColor(...C_LIGHT);
+            doc.rect(M,y,CW,7,'F');
+            doc.setDrawColor(...C_PRIM); doc.setLineWidth(0.3);
+            doc.line(M,y,M,y+7);
+            doc.setTextColor(...C_PRIM); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+            doc.text(titulo, M+3, y+4.8);
+            y+=9;
         };
 
-        const fila2 = (l1,v1,l2,v2) => {
-            checkPage(6);
+        // Fila de dos columnas: label bold azul + valor negro
+        const row2=(l1,v1,l2,v2)=>{
+            chk(6);
             const mid=M+CW/2;
-            doc.setFont('helvetica','bold'); doc.setTextColor(...PRIM); doc.setFontSize(7);
-            doc.text(l1, M, y);
-            doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
-            doc.text(String(v1||'-').slice(0,35), M+28, y);
-            if (l2) {
-                doc.setFont('helvetica','bold'); doc.setTextColor(...PRIM);
-                doc.text(l2, mid+2, y);
-                doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
-                doc.text(String(v2||'-').slice(0,25), mid+28, y);
+            doc.setFont('helvetica','bold'); doc.setTextColor(...C_PRIM); doc.setFontSize(7);
+            doc.text(String(l1||''),M,y);
+            doc.setFont('helvetica','normal'); doc.setTextColor(...C_DARK);
+            doc.text(String(v1||'-').slice(0,36), M+24, y);
+            if(l2){
+                doc.setFont('helvetica','bold'); doc.setTextColor(...C_PRIM);
+                doc.text(String(l2||''), mid+2, y);
+                doc.setFont('helvetica','normal'); doc.setTextColor(...C_DARK);
+                doc.text(String(v2||'-').slice(0,26), mid+24, y);
             }
             y+=5.5;
         };
 
-        // DATOS CLIENTE
-        seccion('DATOS DEL CLIENTE');
-        const fechaActFmt = d.fecha_actividad ? new Date(d.fecha_actividad+'T12:00:00').toLocaleDateString('es-ES') : '-';
-        const fechaNacFmt = d.fecha_nacimiento ? new Date(d.fecha_nacimiento+'T12:00:00').toLocaleDateString('es-ES') : '-';
-        fila2('Nombre:', d.nombre, 'DNI/NIE:', d.dni);
-        fila2('F. nacimiento:', fechaNacFmt, 'Telefono:', d.telefono);
-        fila2('Email:', d.email||'-', 'Provincia:', d.provincia);
-        fila2('Fecha actividad:', fechaActFmt, 'Hora inicio:', (d.hora_inicio||'').slice(0,5));
-        y+=2;
-
-        // MENORES — banner destacado con !! en lugar de ⚠ (que no renderiza en jsPDF)
-        if (d.tiene_menores && d.tutor_nombre) {
-            checkPage(26);
-            doc.setFillColor(255,243,205); doc.rect(M,y,CW,8,'F');
-            doc.setDrawColor(249,168,37); doc.setLineWidth(0.8); doc.rect(M,y,CW,8,'S');
-            doc.setFont('helvetica','bold'); doc.setTextColor(133,77,14); doc.setFontSize(8);
-            doc.text('!! MENORES DE EDAD -- EL TUTOR LEGAL ES EL FIRMANTE DEL CONTRATO !!', M+3, y+5.2);
-            y+=10;
-            fila2('Tutor legal:', d.tutor_nombre, 'DNI tutor:', d.tutor_dni||'-');
-            if (d.menores_nombres) fila2('Menor(es):', d.menores_nombres, '', '');
-            checkPage(10);
-            doc.setFont('helvetica','italic'); doc.setTextColor(120,70,0); doc.setFontSize(6.2);
-            const decl = 'Como tutor/representante legal firmo este contrato asumiendo plena responsabilidad sobre la participacion de los menores indicados y certifico que se encuentran en condiciones fisicas adecuadas para la actividad.';
-            const declL = doc.splitTextToSize(decl, CW);
-            doc.text(declL, M, y); y+=declL.length*3.2+4;
-            doc.setTextColor(30,30,30);
-        }
-
-        // ACTIVIDADES + EXTRAS
-        seccion('ACTIVIDADES CONTRATADAS');
-        doc.setFillColor(...PRIM); doc.rect(M,y,CW,6,'F');
-        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7);
-        doc.text('Actividad',M+2,y+4); doc.text('Cant.',M+60,y+4);
-        doc.text('Duracion',M+80,y+4); doc.text('Hora',M+115,y+4); doc.text('Precio',M+155,y+4);
-        y+=7;
-
-        const actRow = (act,cant,dur,hora,precio,bg) => {
-            checkPage(7);
-            if (bg) { doc.setFillColor(...bg); doc.rect(M,y-1,CW,6,'F'); }
-            doc.setTextColor(30,30,30); doc.setFont('helvetica','normal'); doc.setFontSize(7);
-            doc.text(String(act||'-'),M+2,y+3.5); doc.text(String(cant||'-'),M+60,y+3.5);
-            doc.text(String(dur||'-'),M+80,y+3.5); doc.text(String(hora||'-').slice(0,5),M+115,y+3.5);
-            doc.setFont('helvetica','bold');
-            doc.text(parseFloat(precio||0).toFixed(2)+' EUR',M+155,y+3.5); y+=6;
+        // Fila completa (ancho total)
+        const rowFull=(label,valor)=>{
+            chk(6);
+            doc.setFont('helvetica','bold'); doc.setTextColor(...C_PRIM); doc.setFontSize(7);
+            doc.text(String(label||''), M, y);
+            doc.setFont('helvetica','normal'); doc.setTextColor(...C_DARK);
+            doc.text(String(valor||'-').slice(0,70), M+24, y);
+            y+=5.5;
         };
 
-        actRow(d.actividad,
-               d.actividad==='Hidropedales' ? `${d.cantidad} hidrop.` : `${d.cantidad} pers.`,
-               d.duracion, (d.hora_inicio||'').slice(0,5), d.precio, LIGHT);
+        // ══════════════════════════════════════
+        // DATOS DEL CLIENTE
+        // ══════════════════════════════════════
+        secHdr('DATOS DEL CLIENTE');
+        const fActFmt = d.fecha_actividad ? new Date(d.fecha_actividad+'T12:00:00').toLocaleDateString('es-ES') : '-';
+        const fNacFmt = d.fecha_nacimiento ? new Date(d.fecha_nacimiento+'T12:00:00').toLocaleDateString('es-ES') : '-';
+        row2('Nombre:',        d.nombre,             'DNI / NIE:',     d.dni);
+        row2('F. nacimiento:', fNacFmt,               'Teléfono:',      d.telefono);
+        row2('Email:',         d.email||'-',          'Provincia:',     d.provincia);
+        row2('Fecha actividad:',fActFmt,              'Hora inicio:',   (d.hora_inicio||'').slice(0,5));
+        y+=2;
 
-        const extras = d.actividades_extra || [];
-        extras.forEach((ae,i) => {
-            actRow(ae.actividad,
-                   ae.actividad==='Hidropedales' ? `${ae.cantidad} hidrop.` : `${ae.cantidad} pers.`,
-                   ae.duracion, ae.hora_inicio, ae.precio, i%2===0?[245,235,255]:null);
-        });
-
-        y+=2; checkPage(9);
-        doc.setFillColor(...ACENT); doc.rect(M,y,CW,8,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...PRIM);
-        const total = parseFloat(d.precio||0) + extras.reduce((s,ae)=>s+parseFloat(ae.precio||0),0);
-        doc.text('PRECIO TOTAL', M+3, y+5.5);
-        doc.text(`${total.toFixed(2)} EUR`, M+CW-3, y+5.5, {align:'right'}); y+=12;
-
-        // PARTICIPANTES
-        const parts = d.participantes||[];
-        if (parts.length>0) {
-            seccion('PARTICIPANTES ADICIONALES');
-            parts.forEach((p,i) => { checkPage(6); fila2(`${i+1}. ${p.nombre||'-'}`, `DNI: ${p.dni||'-'}`, '',''); });
-            y+=2;
+        // ══════════════════════════════════════
+        // MENORES (si hay)
+        // ══════════════════════════════════════
+        if(d.tiene_menores && d.tutor_nombre){
+            chk(28);
+            // Banner
+            doc.setFillColor(...C_WARN);
+            doc.rect(M,y,CW,8,'F');
+            doc.setDrawColor(...C_WARN_B); doc.setLineWidth(0.8);
+            doc.rect(M,y,CW,8,'S');
+            doc.setFont('helvetica','bold'); doc.setTextColor(...C_WARN_T); doc.setFontSize(8);
+            doc.text('!! MENORES DE EDAD  --  EL TUTOR LEGAL FIRMA ESTE CONTRATO !!', M+3, y+5.4);
+            y+=10;
+            row2('Tutor legal:',    d.tutor_nombre,  'DNI tutor:',  d.tutor_dni||'-');
+            if(d.menores_nombres) rowFull('Menor(es):', d.menores_nombres);
+            chk(10);
+            doc.setFont('helvetica','italic'); doc.setTextColor(...C_WARN_T); doc.setFontSize(6.2);
+            const decl='Como tutor/representante legal FIRMO este contrato asumiendo la plena responsabilidad sobre la participacion de los menores indicados y certifico que se encuentran en condiciones fisicas adecuadas para realizar la actividad.';
+            const dL=doc.splitTextToSize(decl,CW); doc.text(dL,M,y); y+=dL.length*3.2+4;
+            doc.setTextColor(...C_DARK);
         }
 
-        // CONDICIONES
-        seccion('CONDICIONES Y DECLARACIONES');
-        const tipo = _tipoActividad(d.actividad);
-        const todas = [...(CONDICIONES_ESPECIFICAS[tipo]||CONDICIONES_ESPECIFICAS.grupos), ...CONDICIONES_GENERALES];
-        doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50); doc.setFontSize(6);
-        const colW=CW/2-4, midX=M+CW/2+2;
-        let yL=y, yR=y;
-        todas.forEach((c,i) => {
-            const txt=`${i+1}. ${c}`, isL=i%2===0;
-            const lines=doc.splitTextToSize(txt,colW), h=lines.length*3.3+1;
-            checkPage(h);
-            if (isL) { doc.text(lines,M,yL); yL+=h; }
-            else     { doc.text(lines,midX,yR); yR+=h; }
+        // ══════════════════════════════════════
+        // ACTIVIDADES CONTRATADAS
+        // ══════════════════════════════════════
+        secHdr('ACTIVIDADES CONTRATADAS');
+
+        // Cabecera tabla
+        doc.setFillColor(...C_PRIM); doc.rect(M,y,CW,6.5,'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7);
+        const cols=[M+2, M+58, M+82, M+118, M+150];
+        ['Actividad','Cantidad','Duración','Hora inicio','Precio'].forEach((h,i)=>doc.text(h,cols[i],y+4.5));
+        y+=7.5;
+
+        const actRow=(act,cant,dur,hora,precio,altBg)=>{
+            chk(7);
+            if(altBg){doc.setFillColor(...C_LIGHT);doc.rect(M,y-1,CW,6.5,'F');}
+            doc.setTextColor(...C_DARK); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+            doc.text(String(act||'-'),      cols[0], y+3.5);
+            doc.text(String(cant||'-'),     cols[1], y+3.5);
+            doc.text(String(dur||'-'),      cols[2], y+3.5);
+            doc.text(String(hora||'-').slice(0,5), cols[3], y+3.5);
+            doc.setFont('helvetica','bold');
+            doc.text(parseFloat(precio||0).toFixed(2)+' EUR', cols[4], y+3.5);
+            y+=6.5;
+        };
+
+        const cantPrinc = d.actividad==='Hidropedales' ? d.cantidad+' hidrop.' : d.cantidad+' pers.';
+        actRow(d.actividad, cantPrinc, d.duracion, (d.hora_inicio||'').slice(0,5), d.precio, true);
+
+        const extras = d.actividades_extra||[];
+        extras.forEach((ae,i)=>{
+            const cantAe = ae.actividad==='Hidropedales' ? ae.cantidad+' hidrop.' : ae.cantidad+' pers.';
+            actRow(ae.actividad, cantAe, ae.duracion, (ae.hora_inicio||'').slice(0,5), ae.precio, i%2===0);
         });
-        y=Math.max(yL,yR)+4;
 
-        // RGPD
-        checkPage(14); seccion('DECLARACIONES, RIESGOS Y PROTECCION DE DATOS');
+        // Fila total
+        y+=2; chk(9);
+        doc.setFillColor(...C_ACENT); doc.rect(M,y,CW,9,'F');
+        doc.setDrawColor(...C_PRIM); doc.setLineWidth(0.4); doc.rect(M,y,CW,9,'S');
+        doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...C_PRIM);
+        const total=parseFloat(d.precio||0)+extras.reduce((s,ae)=>s+parseFloat(ae.precio||0),0);
+        doc.text('PRECIO TOTAL', M+4, y+6.2);
+        doc.text(total.toFixed(2)+' EUR', M+CW-3, y+6.2, {align:'right'});
+        y+=13;
+
+        // ══════════════════════════════════════
+        // PARTICIPANTES ADICIONALES
+        // ══════════════════════════════════════
+        const parts=d.participantes||[];
+        if(parts.length>0){
+            secHdr('PARTICIPANTES ADICIONALES');
+            // Mini tabla
+            doc.setFillColor(...C_PRIM); doc.rect(M,y,CW,6,'F');
+            doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7);
+            doc.text('Nombre', M+2, y+4.2); doc.text('DNI / NIE', M+CW/2+2, y+4.2);
+            y+=7;
+            parts.forEach((p,i)=>{
+                chk(6);
+                if(i%2===0){doc.setFillColor(...C_LIGHT);doc.rect(M,y-1,CW,6,'F');}
+                doc.setTextColor(...C_DARK); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+                doc.text(String(p.nombre||'-').slice(0,40), M+2, y+3.5);
+                doc.text(String(p.dni||'-'), M+CW/2+2, y+3.5);
+                y+=6;
+            });
+            y+=3;
+        }
+
+        // ══════════════════════════════════════
+        // CONDICIONES
+        // ══════════════════════════════════════
+        secHdr('CONDICIONES Y DECLARACIONES');
+        const tipo=_tipoActividad(d.actividad);
+        const todas=[...(CONDICIONES_ESPECIFICAS[tipo]||CONDICIONES_ESPECIFICAS.grupos), ...CONDICIONES_GENERALES];
+        doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50); doc.setFontSize(5.8);
+        const cColW=CW/2-3, cMid=M+CW/2+3;
+        let yL=y, yR=y;
+        todas.forEach((c,i)=>{
+            const txt=(i+1)+'. '+c;
+            const isL=i%2===0;
+            const lns=doc.splitTextToSize(txt, cColW);
+            const h=lns.length*3.1+1;
+            chk(h);
+            if(isL){doc.text(lns,M,yL);yL+=h;}
+            else   {doc.text(lns,cMid,yR);yR+=h;}
+        });
+        y=Math.max(yL,yR)+5;
+
+        // ══════════════════════════════════════
+        // RIESGOS Y RGPD
+        // ══════════════════════════════════════
+        chk(14); secHdr('DECLARACIONES, RIESGOS Y PROTECCION DE DATOS');
         doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50); doc.setFontSize(6);
-        const legal = 'Declaro conocer y asumir los riesgos de la actividad y encontrarme en condiciones fisicas adecuadas. No estoy bajo efectos de alcohol ni sustancias. Responsable: Ubuntu Aventuras CIF 09806738K hola@ubuntuaventuras.es. Finalidad: gestion del contrato. Base legal: Art. 6.1.b RGPD. Derechos de acceso, rectificacion y supresion en hola@ubuntuaventuras.es.';
-        const lL=doc.splitTextToSize(legal,CW);
-        checkPage(lL.length*3.3+4); doc.text(lL,M,y); y+=lL.length*3.3+4;
+        const legal='Declaro conocer y asumir los riesgos inherentes a la actividad y encontrarme en condiciones fisicas adecuadas para realizarla, no padeciendo limitacion medica que comprometa mi seguridad. Declaro no estar bajo efectos del alcohol ni de sustancias que alteren mi capacidad. Responsable: Ubuntu Aventuras · CIF 09806738K · hola@ubuntuaventuras.es. Finalidad: gestion del contrato. Base legal: Art. 6.1.b RGPD. Derechos de acceso, rectificacion y supresion en hola@ubuntuaventuras.es.';
+        const lL=doc.splitTextToSize(legal,CW); chk(lL.length*3.2+4); doc.text(lL,M,y); y+=lL.length*3.2+5;
 
+        // ══════════════════════════════════════
         // FIRMA DIGITAL
-        checkPage(35); seccion('FIRMA DIGITAL');
-        const esTutor  = d.tiene_menores && d.tutor_nombre;
-        const firmaNom = esTutor ? d.tutor_nombre : (d.nombre||'-');
-        const firmaDni = esTutor ? (d.tutor_dni||'-') : (d.dni||'-');
-        const firmaRol = esTutor ? `Tutor legal de: ${d.menores_nombres||'-'}` : 'Titular del contrato';
-        const firma    = firmaDataURL || window._firmaDataURL;
-        const fW=58, fH=24;
+        // ══════════════════════════════════════
+        chk(40); secHdr('FIRMA DIGITAL');
 
-        doc.setFillColor(...LIGHT); doc.setDrawColor(...PRIM); doc.setLineWidth(0.6);
-        doc.rect(M,y,fW,fH,'FD');
-        if (firma && firma.startsWith('data:image')) {
-            try { doc.addImage(firma,'PNG',M+1,y+1,fW-2,fH-2); } catch(e){}
+        // Quién firma
+        const esTutor = d.tiene_menores && d.tutor_nombre;
+        const firmNom = esTutor ? d.tutor_nombre : (d.nombre||'-');
+        const firmDni = esTutor ? (d.tutor_dni||'-') : (d.dni||'-');
+        const firmRol = esTutor ? 'Tutor legal de: '+(d.menores_nombres||'-') : 'Titular del contrato';
+
+        const firma = firmaDataURL||window._firmaDataURL;
+        const fW=62, fH=28;
+
+        // Caja imagen firma
+        doc.setFillColor(...C_LIGHT);
+        doc.setDrawColor(...C_PRIM); doc.setLineWidth(0.5);
+        doc.rect(M, y, fW, fH, 'FD');
+        if(firma && firma.startsWith('data:image')){
+            try{doc.addImage(firma,'PNG',M+1,y+1,fW-2,fH-2);}catch(e){}
         } else {
             doc.setTextColor(160,160,160); doc.setFontSize(7);
             doc.text('Firma digital', M+fW/2, y+fH/2, {align:'center'});
         }
 
+        // Info firmante (columna derecha)
         const xI=M+fW+6;
-        doc.setFont('helvetica','bold'); doc.setTextColor(...PRIM); doc.setFontSize(9);
-        doc.text(firmaNom, xI, y+7);
-        if (esTutor) {
-            doc.setFont('helvetica','bold'); doc.setTextColor(133,77,14); doc.setFontSize(7);
-            doc.text(firmaRol, xI, y+13);
-            doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
-            doc.text(`DNI: ${firmaDni}`, xI, y+18);
-            doc.text(`Firmado: ${firmadoFmt}`, xI, y+23);
+        doc.setFont('helvetica','bold'); doc.setTextColor(...C_PRIM); doc.setFontSize(9.5);
+        doc.text(firmNom, xI, y+8);
+        if(esTutor){
+            doc.setFont('helvetica','bold'); doc.setTextColor(...C_WARN_T); doc.setFontSize(7);
+            doc.text(firmRol, xI, y+14);
         } else {
-            doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60); doc.setFontSize(7);
-            doc.text(`DNI: ${firmaDni}`, xI, y+13);
-            doc.text(`Firmado: ${firmadoFmt}`, xI, y+18);
+            doc.setFont('helvetica','normal'); doc.setTextColor(...C_GREY); doc.setFontSize(7);
+            doc.text(firmRol, xI, y+14);
         }
-        y+=fH+4;
+        doc.setFont('helvetica','normal'); doc.setTextColor(...C_DARK); doc.setFontSize(7);
+        doc.text('DNI / NIE: '+firmDni, xI, y+20);
+        doc.text('Firmado: '+firmadoFmt, xI, y+26);
+
+        // Si hay menores también mostrar el titular del contrato
+        if(esTutor){
+            doc.setFont('helvetica','normal'); doc.setTextColor(...C_GREY); doc.setFontSize(6.5);
+            doc.text('Titular contrato: '+(d.nombre||'-'), xI, y+32);
+        }
+
+        y+=fH+5;
 
         // Hash SHA-256 completo
-        checkPage(5); doc.setFontSize(5); doc.setTextColor(150,150,150);
-        doc.text(`SHA-256: ${d.hash_contrato||'-'}`, M, y); y+=6;
+        chk(6);
+        doc.setFontSize(5); doc.setTextColor(160,160,160);
+        doc.text('SHA-256: '+(d.hash_contrato||'-'), M, y); y+=5;
 
+        // ══════════════════════════════════════
         // PIE
-        checkPage(8);
-        doc.setDrawColor(...ACENT); doc.setLineWidth(0.5); doc.line(M,y,W-M,y); y+=4;
-        doc.setFontSize(6); doc.setTextColor(150,150,150); doc.setFont('helvetica','normal');
-        doc.text('Ubuntu Aventuras - CIF 09806738K - Ctra. Riano-Verdiago, 24960 Verdiago (Leon) - ubuntuaventuras.es', W/2, y, {align:'center'});
+        // ══════════════════════════════════════
+        chk(10);
+        doc.setDrawColor(...C_ACENT); doc.setLineWidth(0.6); doc.line(M,y,W-M,y); y+=4;
+        doc.setFontSize(6); doc.setTextColor(...C_GREY); doc.setFont('helvetica','normal');
+        doc.text('Ubuntu Aventuras · CIF 09806738K · Ctra. Riano-Verdiago, 24960 Verdiago (Leon) · ubuntuaventuras.es · hola@ubuntuaventuras.es · 655 703 034', W/2, y, {align:'center'});
 
         return doc.output('blob');
-    } catch(e) { console.error('PDF error:', e); return null; }
+    } catch(e){ console.error('PDF error:',e); return null; }
 }
-
 function descargarPDF() {
     const d = window._contratoFirmado;
     if (!d) return;
