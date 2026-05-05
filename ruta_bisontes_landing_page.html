@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ruta de los Bisontes | Ubuntu Aventuras</title>
+  <meta name="description" content="Ruta de los Bisontes en Riaño: acceso en barco, senderismo guiado y naturaleza salvaje en los Fiordos Leoneses. Reserva por WhatsApp." />
+
+  <style>
+    :root {
+      --green-dark: #0b1f1a;
+      --green: #183b32;
+      --sand: #d8b46a;
+      --cream: #f5efe3;
+      --white: #ffffff;
+      --black: #0b0b0b;
+      --muted: #6f766f;
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--cream);
+      color: var(--green-dark);
+      line-height: 1.55;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .hero {
+      min-height: 100vh;
+      background:
+        linear-gradient(to bottom, rgba(6, 16, 13, .25), rgba(6, 16, 13, .9)),
+        url("img/bisontes-riaño.jpg") center/cover no-repeat;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: .85rem;
+    }
+
+    .logo img {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .nav-pill {
+      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      font-size: .9rem;
+    }
+
+    .hero-content {
+      max-width: 920px;
+      padding: 80px 0 36px;
+    }
+
+    .eyebrow {
+      color: var(--sand);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-weight: 800;
+      margin-bottom: 12px;
+      font-size: .82rem;
+    }
+
+    h1 {
+      font-size: clamp(3.2rem, 11vw, 8.5rem);
+      line-height: .86;
+      letter-spacing: -.06em;
+      text-transform: uppercase;
+      max-width: 900px;
+    }
+
+    .hero-subtitle {
+      margin-top: 22px;
+      max-width: 650px;
+      font-size: clamp(1.15rem, 3vw, 1.7rem);
+      color: rgba(255,255,255,.9);
+    }
+
+    .hero-actions {
+      margin-top: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 15px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--sand);
+      color: var(--green-dark);
+      box-shadow: 0 16px 40px rgba(0,0,0,.28);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(255,255,255,.4);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 38px;
+      max-width: 760px;
+    }
+
+    .info-card {
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 18px;
+      padding: 15px;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .info-card strong {
+      display: block;
+      font-size: 1.05rem;
+    }
+
+    .info-card span {
+      color: rgba(255,255,255,.75);
+      font-size: .92rem;
+    }
+
+    section {
+      padding: 72px 24px;
+    }
+
+    .container {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height: .95;
+      letter-spacing: -.05em;
+      margin-bottom: 18px;
+    }
+
+    .lead {
+      font-size: 1.2rem;
+      color: #3d4944;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .photo-card {
+      overflow: hidden;
+      border-radius: var(--radius);
+      box-shadow: 0 24px 70px rgba(0,0,0,.14);
+      background: white;
+    }
+
+    .photo-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .content-card {
+      background: var(--white);
+      padding: clamp(24px, 5vw, 44px);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 50px rgba(0,0,0,.08);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 34px;
+    }
+
+    .step {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.07);
+      border: 1px solid rgba(11,31,26,.08);
+    }
+
+    .step-number {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--green-dark);
+      color: var(--sand);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      margin-bottom: 8px;
+      font-size: 1.25rem;
+    }
+
+    .highlight {
+      background: var(--green-dark);
+      color: var(--white);
+      border-radius: 34px;
+      padding: clamp(32px, 7vw, 72px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .highlight::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -160px auto;
+      width: 360px;
+      height: 360px;
+      background: var(--sand);
+      border-radius: 50%;
+      opacity: .12;
+    }
+
+    .highlight .section-title,
+    .highlight .lead {
+      color: var(--white);
+      position: relative;
+      z-index: 1;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature {
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,.05);
+    }
+
+    .feature strong {
+      display: block;
+      color: var(--sand);
+      margin-bottom: 4px;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .detail {
+      padding: 18px;
+      border-radius: 18px;
+      background: #f7f2e8;
+      border: 1px solid rgba(11,31,26,.08);
+    }
+
+    .detail strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .reserve {
+      background:
+        linear-gradient(to bottom, rgba(11,31,26,.82), rgba(11,31,26,.92)),
+        url("img/riaño-barco.jpg") center/cover no-repeat;
+      color: var(--white);
+      text-align: center;
+    }
+
+    .reserve-box {
+      width: min(820px, 100%);
+      margin: 0 auto;
+    }
+
+    .reserve h2 {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      line-height: .95;
+      letter-spacing: -.05em;
+      margin-bottom: 20px;
+    }
+
+    .reserve p {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.82);
+      margin-bottom: 28px;
+    }
+
+    .floating-whatsapp {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #25d366;
+      color: #fff;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-weight: 900;
+      box-shadow: 0 14px 34px rgba(0,0,0,.28);
+      z-index: 20;
+    }
+
+    footer {
+      padding: 32px 24px;
+      background: var(--green-dark);
+      color: rgba(255,255,255,.75);
+      text-align: center;
+      font-size: .92rem;
+    }
+
+    @media (max-width: 800px) {
+      .hero {
+        min-height: 92vh;
+      }
+
+      .hero-info,
+      .steps,
+      .features,
+      .details,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-pill {
+        display: none;
+      }
+
+      .hero-content {
+        padding-top: 120px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      section {
+        padding: 56px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="floating-whatsapp" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20la%20Ruta%20de%20los%20Bisontes" target="_blank" rel="noopener">
+    WhatsApp
+  </a>
+
+  <header class="hero">
+    <nav class="nav">
+      <div class="logo">
+        <img src="img/logo-ubuntu.png" alt="Logo Ubuntu Aventuras" />
+        <span>Ubuntu Aventuras</span>
+      </div>
+      <a class="nav-pill" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20reservar%20la%20Ruta%20de%20los%20Bisontes" target="_blank" rel="noopener">Reservar</a>
+    </nav>
+
+    <div class="hero-content">
+      <div class="eyebrow">Riaño · León</div>
+      <h1>Fiordos Leoneses</h1>
+      <p class="hero-subtitle">No parece León. Acceso en barco, senderismo guiado y avistamiento de bisontes en uno de los paisajes más salvajes de la Cordillera Cantábrica.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20reservar%20la%20Ruta%20de%20los%20Bisontes" target="_blank" rel="noopener">Reservar por WhatsApp</a>
+        <a class="btn btn-secondary" href="#actividad">Ver la experiencia</a>
+      </div>
+
+      <div class="hero-info">
+        <div class="info-card"><strong>Barco + ruta</strong><span>Acceso exclusivo al valle</span></div>
+        <div class="info-card"><strong>Bisontes</strong><span>Fauna salvaje en libertad</span></div>
+        <div class="info-card"><strong>Plazas limitadas</strong><span>Grupos reducidos</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="actividad">
+    <div class="container grid-2">
+      <div class="photo-card">
+        <img src="img/paisaje-riaño.jpg" alt="Paisaje de Riaño y los Fiordos Leoneses" />
+      </div>
+      <div class="content-card">
+        <p class="eyebrow">La experiencia</p>
+        <h2 class="section-title">Una ruta que empieza antes de pisar tierra.</h2>
+        <p class="lead">La aventura comienza navegando por el embalse de Riaño hasta acceder a un valle apartado. Desde allí, una ruta guiada permite descubrir un entorno salvaje, silencioso y lleno de vida.</p>
+        <div class="details">
+          <div class="detail"><strong>Duración</strong><span>Aprox. 5 horas</span></div>
+          <div class="detail"><strong>Nivel</strong><span>Fácil / medio</span></div>
+          <div class="detail"><strong>Salida</strong><span>9:15 h</span></div>
+          <div class="detail"><strong>Regreso</strong><span>Entre 14:00 y 15:00 h</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <p class="eyebrow">Cómo funciona</p>
+      <h2 class="section-title">Barco, montaña y naturaleza salvaje.</h2>
+      <p class="lead">Una actividad pensada para quienes buscan algo diferente en Riaño: paisaje, fauna, silencio y una forma especial de entrar en contacto con la montaña leonesa.</p>
+
+      <div class="steps">
+        <article class="step">
+          <div class="step-number">1</div>
+          <h3>Salida en barco</h3>
+          <p>Navegamos por el embalse de Riaño rodeados de montañas, accediendo a un entorno al que no se llega de forma habitual.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">2</div>
+          <h3>Ruta guiada</h3>
+          <p>Recorremos el valle con acompañamiento de guía, interpretando el paisaje, la fauna y la historia natural del entorno.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">3</div>
+          <h3>Avistamiento de fauna</h3>
+          <p>Buscamos bisontes y otras especies presentes en la zona. Los avistamientos dependen siempre de la naturaleza.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container highlight">
+      <p class="eyebrow">Por qué reservar</p>
+      <h2 class="section-title">Esto no es una excursión más.</h2>
+      <p class="lead">Es una experiencia de naturaleza en estado puro, con acceso en barco, paisaje de alta montaña y la posibilidad de ver bisontes en un entorno que sorprende incluso a quienes ya conocen Riaño.</p>
+
+      <div class="features">
+        <div class="feature"><strong>Exclusiva</strong><span>Plazas limitadas por salida</span></div>
+        <div class="feature"><strong>Fotogénica</strong><span>Perfecta para recordar y compartir</span></div>
+        <div class="feature"><strong>Real</strong><span>Naturaleza sin artificios</span></div>
+        <div class="feature"><strong>Local</strong><span>En los Fiordos Leoneses</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container grid-2">
+      <div class="content-card">
+        <p class="eyebrow">Información útil</p>
+        <h2 class="section-title">Antes de venir</h2>
+        <p class="lead">Recomendamos traer calzado cómodo, agua, protección solar y ropa adecuada a la meteorología. La actividad puede modificarse o aplazarse si las condiciones no son seguras.</p>
+        <div class="details">
+          <div class="detail"><strong>Adultos</strong><span>59 €</span></div>
+          <div class="detail"><strong>Niños</strong><span>49 €</span></div>
+          <div class="detail"><strong>Días</strong><span>Sábados y domingos</span></div>
+          <div class="detail"><strong>Reserva</strong><span>Por WhatsApp</span></div>
+        </div>
+      </div>
+      <div class="photo-card">
+        <img src="img/bisonte.jpg" alt="Bisonte en el Valle de Anciles" />
+      </div>
+    </div>
+  </section>
+
+  <section class="reserve">
+    <div class="reserve-box">
+      <h2>Descubre por qué todo el mundo habla de esto.</h2>
+      <p>Escríbenos por WhatsApp y te confirmamos disponibilidad, horarios y plazas para la próxima salida.</p>
+      <a class="btn btn-primary" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20la%20Ruta%20de%20los%20Bisontes%20en%20Ria%C3%B1o" target="_blank" rel="noopener">Quiero reservar</a>
+    </div>
+  </section>
+
+  <footer>
+    Ubuntu Aventuras · Turismo Activo PTA-LE78 · Riaño, León · ubuntuaventuras.es
+  </footer>
+
+  <script>
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', function (event) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>
