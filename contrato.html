@@ -1062,59 +1062,71 @@ async function descargarPDF() {
     const btn = document.querySelector('.btn-descarga');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Preparando PDF...'; }
 
-    // Intentar obtener el PDF del servidor (Python/ReportLab) desde Storage
-    // Reintenta hasta 30s porque el servidor puede tardar unos segundos en generarlo
-    const nombre   = (d.nombre || 'cliente').replace(/\s+/g,'_');
-    const filePath = window._pdfPath || `${d.id}/contrato_${d.id}_${nombre}.pdf`;
-
-    let signedUrl = null;
-    const maxTries = 10, delayMs = 3000;
-
-    for (let i = 0; i < maxTries; i++) {
-        try {
-            // Consultar pdf_path actualizado desde Supabase
-            const chk = await fetch(
-                `${SUPABASE_URL}/rest/v1/contratos?id=eq.${d.id}&select=pdf_path`,
-                { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` } }
+    // 1. Intentar obtener el PDF del servidor desde Supabase Storage
+    let serverOk = false;
+    try {
+        const chk = await fetch(
+            `${SUPABASE_URL}/rest/v1/contratos?id=eq.${d.id}&select=pdf_path`,
+            { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` } }
+        );
+        const rows = await chk.json();
+        const path = rows?.[0]?.pdf_path;
+        if (path && path.length > 5) {
+            // Crear URL pública firmada via endpoint correcto de Supabase Storage
+            const sigRes = await fetch(
+                `${SUPABASE_URL}/storage/v1/object/sign/contratos-pdf/${path}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON,
+                        'Authorization': `Bearer ${SUPABASE_ANON}`
+                    },
+                    body: JSON.stringify({ expiresIn: 3600 })
+                }
             );
-            const rows = await chk.json();
-            const path = rows?.[0]?.pdf_path;
-            if (path) {
-                // Generar URL firmada (60 min)
-                const sigRes = await fetch(
-                    `${SUPABASE_URL}/storage/v1/object/sign/contratos-pdf/${path}`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'apikey': SUPABASE_ANON,
-                            'Authorization': `Bearer ${SUPABASE_ANON}`
-                        },
-                        body: JSON.stringify({ expiresIn: 3600 })
-                    }
-                );
-                if (sigRes.ok) {
-                    const sigData = await sigRes.json();
-                    signedUrl = sigData.signedURL || sigData.signed_url
-                        || `${SUPABASE_URL}/storage/v1/object/sign/contratos-pdf/${path}`;
-                    if (signedUrl) break;
+            if (sigRes.ok) {
+                const sigData = await sigRes.json();
+                // El campo puede llamarse signedURL, signedUrl o signed_url según versión
+                const signedUrl = sigData.signedURL || sigData.signedUrl || sigData.signed_url;
+                if (signedUrl) {
+                    // Construir URL completa si viene solo el path
+                    const fullUrl = signedUrl.startsWith('http')
+                        ? signedUrl
+                        : `${SUPABASE_URL}/storage/v1${signedUrl}`;
+                    if (btn) { btn.disabled = false; btn.textContent = '📄 Descargar mi contrato'; }
+                    window.open(fullUrl, '_blank');
+                    serverOk = true;
                 }
             }
-        } catch(e) {}
-        if (i < maxTries - 1) {
-            if (btn) btn.textContent = `⏳ Generando PDF... (${i+1}/${maxTries})`;
-            await new Promise(r => setTimeout(r, delayMs));
         }
-    }
+    } catch(e) { console.warn('Storage fetch failed:', e); }
+
+    if (serverOk) return;
+
+    // 2. Fallback: generar PDF en el navegador con jsPDF (mismo diseño)
+    if (btn) btn.textContent = '⏳ Generando PDF...';
+    try {
+        if (typeof window.jspdf === 'undefined') {
+            await new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+        const blob = await _generarPDFBlob(d, window._firmaDataURL);
+        if (blob) {
+            const url = URL.createObjectURL(blob);
+            const a   = document.createElement('a');
+            a.href    = url;
+            a.download = `contrato_${d.id}_${(d.nombre||'ubuntu').replace(/\s+/g,'_')}.pdf`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    } catch(e) { console.error('PDF fallback failed:', e); }
 
     if (btn) { btn.disabled = false; btn.textContent = '📄 Descargar mi contrato'; }
-
-    if (signedUrl) {
-        // Abrir el PDF del servidor
-        window.open(signedUrl, '_blank');
-    } else {
-        alert('El PDF aún se está generando. Inténtalo en unos segundos o contacta con nosotros en el 655 703 034.');
-    }
 }
 
 function validarEmail(input) {
