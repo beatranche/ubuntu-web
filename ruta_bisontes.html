@@ -96,15 +96,19 @@
       font-size: .85rem;
     }
 
-    .logo img {
-      width: 64px;
-      height: 64px;
+     .logo img {
+      width: 110px;
+      height: auto;
+      max-height: 110px;
       object-fit: contain;
-      border-radius: 50%;
-      background: white;
-      padding: 4px;
+      display: block;
     }
 
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
     .nav-pill {
       padding: 10px 16px;
       border: 1px solid rgba(255,255,255,.35);
