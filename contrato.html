@@ -745,6 +745,8 @@ async function guardarContrato() {
             document.getElementById('formulario').style.display = 'none';
             document.getElementById('exito-screen').classList.add('visible');
             document.getElementById('contrato-id-ok').textContent = `#${id || '—'}`;
+            // Guardar id en el DOM para recuperarlo si _contratoFirmado se pierde
+            document.getElementById('exito-screen').dataset.contratoId = id;
         } else {
             throw new Error(result?.message || `Error ${res.status}`);
         }
@@ -1056,21 +1058,27 @@ async function _generarPDFBlob(d, firmaDataURL) {
     } catch(e){ console.error('PDF error:',e); return null; }
 }
 async function descargarPDF() {
-    const d = window._contratoFirmado;
-    if (!d || !d.id) return;
-
     const btn = document.querySelector('.btn-descarga');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Preparando PDF...'; }
+
+    // Recuperar id: desde _contratoFirmado o desde el DOM
+    const d   = window._contratoFirmado;
+    const cid = d?.id || document.getElementById('exito-screen')?.dataset?.contratoId;
+    if (!cid) {
+        if (btn) { btn.disabled = false; btn.textContent = '📄 Descargar mi contrato'; }
+        alert('No se puede identificar el contrato. Contacta con nosotros: 655 703 034');
+        return;
+    }
 
     // 1. Intentar obtener el PDF del servidor desde Supabase Storage
     let serverOk = false;
     try {
         const chk = await fetch(
-            `${SUPABASE_URL}/rest/v1/contratos?id=eq.${d.id}&select=pdf_path`,
+            `${SUPABASE_URL}/rest/v1/contratos?id=eq.${cid}&select=pdf_path`,
             { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` } }
         );
         const rows = await chk.json();
-        const path = rows?.[0]?.pdf_path;
+        const path = rows?.[0]?.pdf_path || window._pdfPath;
         if (path && path.length > 5) {
             // Crear URL pública firmada via endpoint correcto de Supabase Storage
             const sigRes = await fetch(
@@ -1120,7 +1128,7 @@ async function descargarPDF() {
             const url = URL.createObjectURL(blob);
             const a   = document.createElement('a');
             a.href    = url;
-            a.download = `contrato_${d.id}_${(d.nombre||'ubuntu').replace(/\s+/g,'_')}.pdf`;
+            a.download = `contrato_${cid}_${(d?.nombre||'ubuntu').replace(/\s+/g,'_')}.pdf`;
             a.click();
             URL.revokeObjectURL(url);
         }
