@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piraguas en Riaño | Ubuntu Aventuras</title>
+  <meta name="description" content="Alquiler de piraguas en Riaño. Navega por los Fiordos Leoneses desde 10 €. Reserva por WhatsApp con Ubuntu Aventuras." />
+
+  <style>
+    :root {
+      --deep: #061b1d;
+      --green: #0f3a35;
+      --water: #0e6f72;
+      --sand: #d8b46a;
+      --cream: #f5efe3;
+      --white: #ffffff;
+      --muted: #64736f;
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--cream);
+      color: var(--deep);
+      line-height: 1.55;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,.12), rgba(6,27,29,.86)),
+        url("img/piraguas-riaño.jpg") center center / cover no-repeat;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "DESDE EL AGUA";
+      position: absolute;
+      right: 28px;
+      bottom: 34px;
+      font-size: clamp(3rem, 9vw, 9rem);
+      font-weight: 950;
+      letter-spacing: -.06em;
+      color: rgba(255,255,255,.055);
+      z-index: 0;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .nav,
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .85rem;
+    }
+
+    .logo img {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .nav-pill {
+      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,.42);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      font-weight: 800;
+      font-size: .9rem;
+    }
+
+    .hero-content {
+      max-width: 980px;
+      padding: 90px 0 42px;
+    }
+
+    .eyebrow {
+      color: var(--sand);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-weight: 900;
+      font-size: .78rem;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(3.3rem, 12vw, 9rem);
+      line-height: .84;
+      letter-spacing: -.07em;
+      text-transform: uppercase;
+      max-width: 980px;
+    }
+
+    .hero-subtitle {
+      margin-top: 24px;
+      max-width: 680px;
+      font-size: clamp(1.12rem, 3vw, 1.75rem);
+      color: rgba(255,255,255,.92);
+    }
+
+    .hero-actions {
+      margin-top: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+      padding: 15px 24px;
+      border-radius: 999px;
+      font-weight: 900;
+      transition: transform .2s ease, box-shadow .2s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--sand);
+      color: var(--deep);
+      box-shadow: 0 16px 40px rgba(0,0,0,.28);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(255,255,255,.46);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: 760px;
+      margin-top: 40px;
+    }
+
+    .info-card {
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .info-card strong {
+      display: block;
+      font-size: 1.06rem;
+    }
+
+    .info-card span {
+      color: rgba(255,255,255,.75);
+      font-size: .92rem;
+    }
+
+    section {
+      padding: 76px 24px;
+    }
+
+    .container {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: clamp(2.25rem, 5.6vw, 4.35rem);
+      line-height: .94;
+      letter-spacing: -.055em;
+      margin-bottom: 18px;
+    }
+
+    .lead {
+      font-size: 1.18rem;
+      color: #3d4c49;
+      max-width: 780px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .photo-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 24px 70px rgba(0,0,0,.14);
+    }
+
+    .photo-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .content-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: clamp(24px, 5vw, 46px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.08);
+      border: 1px solid rgba(6,27,29,.06);
+    }
+
+    .tarifas {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 34px;
+    }
+
+    .tarifa {
+      position: relative;
+      background: var(--white);
+      border-radius: 24px;
+      padding: 26px;
+      border: 1px solid rgba(6,27,29,.08);
+      box-shadow: 0 18px 46px rgba(0,0,0,.075);
+      overflow: hidden;
+    }
+
+    .tarifa.destacada {
+      background: var(--deep);
+      color: var(--white);
+      transform: translateY(-10px);
+    }
+
+    .tarifa.destacada::before {
+      content: "Más elegida";
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--sand);
+      color: var(--deep);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: .76rem;
+      font-weight: 900;
+    }
+
+    .tarifa h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .precio {
+      font-size: 3rem;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -.06em;
+      color: var(--water);
+      margin-bottom: 8px;
+    }
+
+    .tarifa.destacada .precio {
+      color: var(--sand);
+    }
+
+    .tarifa p {
+      color: var(--muted);
+    }
+
+    .tarifa.destacada p {
+      color: rgba(255,255,255,.72);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 34px;
+    }
+
+    .step {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 26px;
+      border: 1px solid rgba(6,27,29,.08);
+      box-shadow: 0 18px 45px rgba(0,0,0,.07);
+    }
+
+    .step-number {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--deep);
+      color: var(--sand);
+      display: grid;
+      place-items: center;
+      font-weight: 950;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+    }
+
+    .highlight {
+      background:
+        linear-gradient(to bottom, rgba(6,27,29,.86), rgba(6,27,29,.94)),
+        url("img/riaño-barco.jpg") center/cover no-repeat;
+      color: var(--white);
+      border-radius: 34px;
+      padding: clamp(34px, 7vw, 76px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .highlight .section-title,
+    .highlight .lead {
+      color: var(--white);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .feature {
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      border-radius: 18px;
+      padding: 18px;
+      backdrop-filter: blur(6px);
+    }
+
+    .feature strong {
+      display: block;
+      color: var(--sand);
+      margin-bottom: 4px;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .detail {
+      background: #f7f2e8;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(6,27,29,.08);
+    }
+
+    .detail strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .reserve {
+      background:
+        linear-gradient(to bottom, rgba(6,27,29,.82), rgba(6,27,29,.94)),
+        url("img/piraguas-riaño.jpg") center/cover no-repeat;
+      color: var(--white);
+      text-align: center;
+    }
+
+    .reserve-box {
+      width: min(820px, 100%);
+      margin: 0 auto;
+    }
+
+    .reserve h2 {
+      font-size: clamp(2.5rem, 7vw, 5.2rem);
+      line-height: .93;
+      letter-spacing: -.06em;
+      margin-bottom: 20px;
+    }
+
+    .reserve p {
+      font-size: 1.18rem;
+      color: rgba(255,255,255,.84);
+      margin-bottom: 28px;
+    }
+
+    .floating-whatsapp {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #25d366;
+      color: #fff;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-weight: 950;
+      box-shadow: 0 14px 34px rgba(0,0,0,.28);
+      z-index: 20;
+    }
+
+    footer {
+      padding: 32px 24px;
+      background: var(--deep);
+      color: rgba(255,255,255,.75);
+      text-align: center;
+      font-size: .92rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2,
+      .tarifas,
+      .steps,
+      .features,
+      .details,
+      .hero-info {
+        grid-template-columns: 1fr;
+      }
+
+      .tarifa.destacada {
+        transform: none;
+      }
+
+      .nav-pill {
+        display: none;
+      }
+
+      .hero {
+        min-height: 94vh;
+      }
+
+      .hero-content {
+        padding-top: 120px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      section {
+        padding: 58px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="floating-whatsapp" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20piraguas%20en%20Ria%C3%B1o" target="_blank" rel="noopener">
+    WhatsApp
+  </a>
+
+  <header class="hero">
+    <nav class="nav">
+      <div class="logo">
+        <img src="img/logo-ubuntu.png" alt="Logo Ubuntu Aventuras" />
+        <span>Ubuntu Aventuras</span>
+      </div>
+      <a class="nav-pill" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20reservar%20piraguas%20en%20Ria%C3%B1o" target="_blank" rel="noopener">Reservar</a>
+    </nav>
+
+    <div class="hero-content">
+      <div class="eyebrow">Riaño · León</div>
+      <h1>Piraguas en Riaño</h1>
+      <p class="hero-subtitle">Navega por los Fiordos Leoneses a tu ritmo. Agua verde, montañas enormes y una forma sencilla de vivir Riaño desde dentro.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20reservar%20piraguas%20en%20Ria%C3%B1o" target="_blank" rel="noopener">Reservar por WhatsApp</a>
+        <a class="btn btn-secondary" href="#tarifas">Ver tarifas</a>
+      </div>
+
+      <div class="hero-info">
+        <div class="info-card"><strong>Desde 10 €</strong><span>Por persona</span></div>
+        <div class="info-card"><strong>Sin experiencia</strong><span>Actividad fácil</span></div>
+        <div class="info-card"><strong>Material incluido</strong><span>Pala y chaleco</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="container grid-2">
+      <div class="photo-card">
+        <img src="img/piraguas-experiencia.jpg" alt="Piraguas en el embalse de Riaño" />
+      </div>
+      <div class="content-card">
+        <p class="eyebrow">La experiencia</p>
+        <h2 class="section-title">No es solo alquilar una piragua.</h2>
+        <p class="lead">Es entrar en el paisaje. Remar sin prisa, parar a mirar las montañas y descubrir Riaño desde el agua, con una perspectiva que desde tierra no se entiende igual.</p>
+        <div class="details">
+          <div class="detail"><strong>Ubicación</strong><span>Embarcadero de Riaño</span></div>
+          <div class="detail"><strong>Nivel</strong><span>Fácil</span></div>
+          <div class="detail"><strong>Para quién</strong><span>Parejas, familias y grupos</span></div>
+          <div class="detail"><strong>Reserva</strong><span>Por WhatsApp</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tarifas">
+    <div class="container">
+      <p class="eyebrow">Tarifas</p>
+      <h2 class="section-title">Elige cuánto quieres perderte en el paisaje.</h2>
+      <p class="lead">Precios por persona. Incluyen piragua, pala y chaleco salvavidas.</p>
+
+      <div class="tarifas">
+        <article class="tarifa">
+          <h3>1 hora</h3>
+          <div class="precio">10€</div>
+          <p>Ideal para probar o hacer una escapada rápida.</p>
+        </article>
+
+        <article class="tarifa destacada">
+          <h3>2 horas</h3>
+          <div class="precio">18€</div>
+          <p>La opción más equilibrada para disfrutar sin prisas.</p>
+        </article>
+
+        <article class="tarifa">
+          <h3>3 horas</h3>
+          <div class="precio">24€</div>
+          <p>Para explorar más recorrido y hacer paradas.</p>
+        </article>
+
+        <article class="tarifa">
+          <h3>Todo el día</h3>
+          <div class="precio">30€</div>
+          <p>Libertad total para vivir Riaño desde el agua.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <p class="eyebrow">Cómo funciona</p>
+      <h2 class="section-title">Llegar, equiparte y remar.</h2>
+      <p class="lead">Una actividad sencilla, muy visual y perfecta para completar una visita a Riaño.</p>
+
+      <div class="steps">
+        <article class="step">
+          <div class="step-number">1</div>
+          <h3>Reserva</h3>
+          <p>Nos escribes por WhatsApp, confirmamos disponibilidad y dejamos la actividad preparada.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">2</div>
+          <h3>Material</h3>
+          <p>Te entregamos piragua, pala y chaleco. Te explicamos lo básico antes de salir.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">3</div>
+          <h3>A disfrutar</h3>
+          <p>Remas a tu ritmo por el embalse, rodeado de montañas y agua verde azul.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container highlight">
+      <p class="eyebrow">Por qué merece la pena</p>
+      <h2 class="section-title">Riaño cambia completamente desde el agua.</h2>
+      <p class="lead">Desde la piragua el paisaje se vuelve más grande, más silencioso y más cercano. Es una de las formas más sencillas y bonitas de vivir los Fiordos Leoneses.</p>
+
+      <div class="features">
+        <div class="feature"><strong>Visual</strong><span>Montañas, reflejos y agua turquesa</span></div>
+        <div class="feature"><strong>Flexible</strong><span>Desde 1 hora hasta todo el día</span></div>
+        <div class="feature"><strong>Fácil</strong><span>No hace falta experiencia previa</span></div>
+        <div class="feature"><strong>Compartible</strong><span>Perfecta para fotos y vídeos</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container grid-2">
+      <div class="content-card">
+        <p class="eyebrow">Información útil</p>
+        <h2 class="section-title">Antes de venir</h2>
+        <p class="lead">Recomendamos traer ropa cómoda, calzado que se pueda mojar, protección solar, agua y una muda seca. La actividad puede modificarse o suspenderse por seguridad si las condiciones meteorológicas no son adecuadas.</p>
+        <div class="details">
+          <div class="detail"><strong>Incluye</strong><span>Piragua, pala y chaleco</span></div>
+          <div class="detail"><strong>Pago</strong><span>Efectivo, tarjeta o Bizum</span></div>
+          <div class="detail"><strong>Grupos</strong><span>Consultar disponibilidad</span></div>
+          <div class="detail"><strong>Ubicación</strong><span>Riaño, León</span></div>
+        </div>
+      </div>
+      <div class="photo-card">
+        <img src="img/riaño-piraguas.jpg" alt="Embalse de Riaño" />
+      </div>
+    </div>
+  </section>
+
+  <section class="reserve">
+    <div class="reserve-box">
+      <h2>Reserva tu piragua en Riaño.</h2>
+      <p>Escríbenos por WhatsApp y te confirmamos disponibilidad, horarios y punto de encuentro.</p>
+      <a class="btn btn-primary" href="https://wa.me/34655703034?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20piraguas%20en%20Ria%C3%B1o" target="_blank" rel="noopener">Quiero reservar</a>
+    </div>
+  </section>
+
+  <footer>
+    Ubuntu Aventuras · Turismo Activo PTA-LE78 · Riaño, León · ubuntuaventuras.es
+  </footer>
+</body>
+</html>
