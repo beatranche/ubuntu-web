@@ -231,7 +231,7 @@
                 <label>Duración</label>
                 <select id="duracion" onchange="calcularPrecioAuto()">
                     <option>1 hora</option><option>2 horas</option><option>3 horas</option>
-                    <option>Medio dia</option><option>Todo el dia</option>
+                    <option>Todo el dia</option>
                 </select>
             </div>
             <div class="campo">
@@ -444,7 +444,7 @@ function onActividadChange() {
 
     if (!sinDur) {
         const sel = document.getElementById('duracion');
-        const opciones = DURACIONES[act] || ["1 hora","2 horas","Medio dia","Todo el dia"];
+        const opciones = DURACIONES[act] || ["1 hora","2 horas","3 horas","Todo el dia"];
         const valorActual = sel.value;
         sel.innerHTML = opciones.map(o => `<option value="${o}">${o}</option>`).join('');
         if (opciones.includes(valorActual)) sel.value = valorActual;
@@ -1194,7 +1194,7 @@ function addActExtra() {
             <div class="campo">
                 <label>Duración</label>
                 <select id="ae-dur-${id}" onchange="calcAeTotal()">
-                    <option>1 hora</option><option>2 horas</option><option>3 horas</option><option>Medio dia</option><option>Todo el dia</option>
+                    <option>1 hora</option><option>2 horas</option><option>3 horas</option><option>Todo el dia</option>
                 </select>
             </div>
             <div class="campo">
@@ -1233,7 +1233,7 @@ function onAeChange(id) {
     if (inputCant) { inputCant.max = esHidro ? 3 : 60; if (esHidro && inputCant.value > 3) inputCant.value = 3; }
     if (!sinDur) {
         const sel = document.getElementById(`ae-dur-${id}`);
-        const opts = DURACIONES[act] || ["1 hora","2 horas","Medio dia","Todo el dia"];
+        const opts = DURACIONES[act] || ["1 hora","2 horas","3 horas","Todo el dia"];
         sel.innerHTML = opts.map(o => `<option>${o}</option>`).join('');
     }
     calcAeTotal();
