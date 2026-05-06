@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piraguas en Riaño | Ubuntu Aventuras</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    background: #fff;
+}
+
+/* HERO */
+.hero {
+    height: 100vh;
+    background: url('img/piraguas.jpg') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.hero p {
+    font-size: 1.3rem;
+    margin-top: 10px;
+}
+
+.cta {
+    margin-top: 20px;
+}
+
+.cta a {
+    background: #ff7a00;
+    color: white;
+    padding: 15px 30px;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 5px;
+}
+
+/* SECCIONES */
+.section {
+    padding: 60px 20px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.section h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+/* TARIFAS */
+.tarifas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap: 20px;
+}
+
+.tarifa {
+    border: 1px solid #ddd;
+    padding: 25px;
+    text-align: center;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.tarifa:hover {
+    transform: scale(1.05);
+    border-color: #ff7a00;
+}
+
+.tarifa h3 {
+    margin: 0;
+}
+
+.precio {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ff7a00;
+}
+
+/* INFO */
+.info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap: 20px;
+}
+
+.info div {
+    background: #f7f7f7;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* CTA FINAL */
+.final {
+    text-align: center;
+    padding: 60px 20px;
+    background: #222;
+    color: white;
+}
+
+.final a {
+    display: inline-block;
+    margin-top: 20px;
+    background: #ff7a00;
+    padding: 15px 30px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+    background: #111;
+    color: #aaa;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>PIRAGUAS EN RIAÑO</h1>
+        <p>Descubre los fiordos leoneses desde el agua</p>
+        <div class="cta">
+            <a href="https://wa.me/34655703034">Reservar ahora</a>
+        </div>
+    </div>
+</section>
+
+<!-- DESCRIPCIÓN -->
+<section class="section">
+    <h2>Una experiencia única</h2>
+    <p style="text-align:center; max-width:700px; margin:auto;">
+        Navega en piragua por el embalse de Riaño, rodeado de montañas espectaculares.
+        Una actividad tranquila, accesible y perfecta para disfrutar en pareja, familia o grupo.
+    </p>
+</section>
+
+<!-- TARIFAS -->
+<section class="section">
+    <h2>Tarifas</h2>
+
+    <div class="tarifas">
+        <div class="tarifa">
+            <h3>1 hora</h3>
+            <div class="precio">10€</div>
+            <p>Perfecto para probar</p>
+        </div>
+
+        <div class="tarifa">
+            <h3>2 horas</h3>
+            <div class="precio">18€</div>
+            <p>La opción más popular</p>
+        </div>
+
+        <div class="tarifa">
+            <h3>3 horas</h3>
+            <div class="precio">24€</div>
+            <p>Explora más a fondo</p>
+        </div>
+
+        <div class="tarifa">
+            <h3>Todo el día</h3>
+            <div class="precio">30€</div>
+            <p>Libertad total</p>
+        </div>
+    </div>
+</section>
+
+<!-- INFO -->
+<section class="section">
+    <h2>Información</h2>
+
+    <div class="info">
+        <div>
+            <strong>Incluye</strong>
+            <p>Piragua, pala y chaleco salvavidas</p>
+        </div>
+
+        <div>
+            <strong>Nivel</strong>
+            <p>Fácil – apto para todos</p>
+        </div>
+
+        <div>
+            <strong>Ubicación</strong>
+            <p>Embarcadero de Riaño</p>
+        </div>
+
+        <div>
+            <strong>Grupos</strong>
+            <p>Individual, parejas o grupos grandes</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final">
+    <h2>¿Te vienes?</h2>
+    <p>Reserva ahora y vive Riaño desde el agua</p>
+    <a href="https://wa.me/34655703034">Reservar por WhatsApp</a>
+</section>
+
+<footer>
+Ubuntu Aventuras · Riaño (León)
+</footer>
+
+</body>
+</html>
