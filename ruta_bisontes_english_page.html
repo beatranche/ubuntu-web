@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bison Route | Ubuntu Aventuras</title>
+  <meta name="description" content="Bison Route in Riaño: boat access, guided hiking and wild nature in the León Fjords. Book via WhatsApp." />
+
+  <style>
+    :root {
+      --green-dark: #0b1f1a;
+      --green: #183b32;
+      --sand: #d8b46a;
+      --cream: #f5efe3;
+      --white: #ffffff;
+      --black: #0b0b0b;
+      --muted: #6f766f;
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--cream);
+      color: var(--green-dark);
+      line-height: 1.55;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,.18),
+          rgba(0,0,0,.52)
+        ),
+        url("img/cartel-campaña-2026.jpg") center center / cover no-repeat;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "THIS DOESN'T LOOK LIKE LEÓN";
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      font-size: clamp(2.4rem, 6.5vw, 6.5rem);
+      font-weight: 900;
+      color: rgba(255,255,255,.06);
+      letter-spacing: -0.05em;
+      z-index: 0;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .nav,
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: .85rem;
+    }
+
+    .logo img {
+      width: 110px;
+      height: auto;
+      max-height: 110px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .nav-pill {
+      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      font-size: .9rem;
+    }
+
+    .hero-content {
+      max-width: 920px;
+      padding: 80px 0 36px;
+    }
+
+    .eyebrow {
+      color: var(--sand);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-weight: 800;
+      margin-bottom: 12px;
+      font-size: .82rem;
+    }
+
+    h1 {
+      font-size: clamp(3.2rem, 11vw, 8.5rem);
+      line-height: .86;
+      letter-spacing: -.06em;
+      text-transform: uppercase;
+      max-width: 900px;
+    }
+
+    .hero-subtitle {
+      margin-top: 22px;
+      max-width: 650px;
+      font-size: clamp(1.15rem, 3vw, 1.7rem);
+      color: rgba(255,255,255,.9);
+    }
+
+    .hero-actions {
+      margin-top: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 15px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--sand);
+      color: var(--green-dark);
+      box-shadow: 0 16px 40px rgba(0,0,0,.28);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(255,255,255,.4);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 38px;
+      max-width: 760px;
+    }
+
+    .info-card {
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 18px;
+      padding: 15px;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .info-card strong {
+      display: block;
+      font-size: 1.05rem;
+    }
+
+    .info-card span {
+      color: rgba(255,255,255,.75);
+      font-size: .92rem;
+    }
+
+    section {
+      padding: 72px 24px;
+    }
+
+    .container {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height: .95;
+      letter-spacing: -.05em;
+      margin-bottom: 18px;
+    }
+
+    .lead {
+      font-size: 1.2rem;
+      color: #3d4944;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .photo-card {
+      overflow: hidden;
+      border-radius: var(--radius);
+      box-shadow: 0 24px 70px rgba(0,0,0,.14);
+      background: white;
+    }
+
+    .photo-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .content-card {
+      background: var(--white);
+      padding: clamp(24px, 5vw, 44px);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 50px rgba(0,0,0,.08);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 34px;
+    }
+
+    .step {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.07);
+      border: 1px solid rgba(11,31,26,.08);
+    }
+
+    .step-number {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--green-dark);
+      color: var(--sand);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      margin-bottom: 8px;
+      font-size: 1.25rem;
+    }
+
+    .highlight {
+      background: var(--green-dark);
+      color: var(--white);
+      border-radius: 34px;
+      padding: clamp(32px, 7vw, 72px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .highlight::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -160px auto;
+      width: 360px;
+      height: 360px;
+      background: var(--sand);
+      border-radius: 50%;
+      opacity: .12;
+    }
+
+    .highlight .section-title,
+    .highlight .lead {
+      color: var(--white);
+      position: relative;
+      z-index: 1;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature {
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,.05);
+    }
+
+    .feature strong {
+      display: block;
+      color: var(--sand);
+      margin-bottom: 4px;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .detail {
+      padding: 18px;
+      border-radius: 18px;
+      background: #f7f2e8;
+      border: 1px solid rgba(11,31,26,.08);
+    }
+
+    .detail strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .reserve {
+      background:
+        linear-gradient(to bottom, rgba(11,31,26,.82), rgba(11,31,26,.92)),
+        url("img/riaño-barco.jpg") center/cover no-repeat;
+      color: var(--white);
+      text-align: center;
+    }
+
+    .reserve-box {
+      width: min(820px, 100%);
+      margin: 0 auto;
+    }
+
+    .reserve h2 {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      line-height: .95;
+      letter-spacing: -.05em;
+      margin-bottom: 20px;
+    }
+
+    .reserve p {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.82);
+      margin-bottom: 28px;
+    }
+
+    .floating-whatsapp {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #25d366;
+      color: #fff;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-weight: 900;
+      box-shadow: 0 14px 34px rgba(0,0,0,.28);
+      z-index: 20;
+    }
+
+    footer {
+      padding: 32px 24px;
+      background: var(--green-dark);
+      color: rgba(255,255,255,.75);
+      text-align: center;
+      font-size: .92rem;
+    }
+
+    @media (max-width: 800px) {
+      .hero {
+        min-height: 92vh;
+        background-position: center center;
+      }
+
+      .hero::after {
+        right: 18px;
+        bottom: 22px;
+        font-size: clamp(2rem, 10vw, 4.5rem);
+      }
+
+      .hero-info,
+      .steps,
+      .features,
+      .details,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-pill {
+        display: none;
+      }
+
+      .hero-content {
+        padding-top: 120px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      section {
+        padding: 56px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="floating-whatsapp" href="https://wa.me/34655703034?text=Hello%2C%20I%20would%20like%20information%20about%20the%20Bison%20Route" target="_blank" rel="noopener">
+    WhatsApp
+  </a>
+
+  <header class="hero">
+    <nav class="nav">
+      <div class="logo">
+        <img src="img/logo-ubuntu.png" alt="Ubuntu Aventuras logo" />
+        <span>Ubuntu Aventuras</span>
+      </div>
+      <a class="nav-pill" href="https://wa.me/34655703034?text=Hello%2C%20I%20would%20like%20to%20book%20the%20Bison%20Route" target="_blank" rel="noopener">Book now</a>
+    </nav>
+
+    <div class="hero-content">
+      <div class="eyebrow">Riaño · León · Spain</div>
+      <h1>León Fjords</h1>
+      <p class="hero-subtitle">This does not look like León. Boat access, guided hiking and bison watching in one of the wildest landscapes of the Cantabrian Mountains.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://wa.me/34655703034?text=Hello%2C%20I%20would%20like%20to%20book%20the%20Bison%20Route" target="_blank" rel="noopener">Book via WhatsApp</a>
+        <a class="btn btn-secondary" href="#activity">See the experience</a>
+      </div>
+
+      <div class="hero-info">
+        <div class="info-card"><strong>Boat + hiking route</strong><span>Exclusive access to the valley</span></div>
+        <div class="info-card"><strong>Bison</strong><span>Wildlife in a natural setting</span></div>
+        <div class="info-card"><strong>Limited places</strong><span>Small groups</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="activity">
+    <div class="container grid-2">
+      <div class="photo-card">
+        <img src="img/paisaje-riaño.png" alt="Landscape of Riaño and the León Fjords" />
+      </div>
+      <div class="content-card">
+        <p class="eyebrow">The experience</p>
+        <h2 class="section-title">A route that begins before you even step on land.</h2>
+        <p class="lead">The adventure starts by sailing across the Riaño reservoir to reach a secluded valley. From there, a guided route takes you into a wild, peaceful landscape full of life.</p>
+        <div class="details">
+          <div class="detail"><strong>Duration</strong><span>Approx. 5 hours</span></div>
+          <div class="detail"><strong>Level</strong><span>Easy / moderate</span></div>
+          <div class="detail"><strong>Departure</strong><span>9:15 am</span></div>
+          <div class="detail"><strong>Return</strong><span>Between 2:00 and 3:00 pm</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <p class="eyebrow">How it works</p>
+      <h2 class="section-title">Boat, mountains and wild nature.</h2>
+      <p class="lead">An experience designed for travellers looking for something different in Riaño: landscape, wildlife, silence and a special way to connect with the mountains of León.</p>
+
+      <div class="steps">
+        <article class="step">
+          <div class="step-number">1</div>
+          <h3>Boat departure</h3>
+          <p>We sail across the Riaño reservoir surrounded by mountains, reaching an area that is not usually accessible.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">2</div>
+          <h3>Guided hiking route</h3>
+          <p>We walk through the valley with a guide, interpreting the landscape, wildlife and natural history of the area.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">3</div>
+          <h3>Wildlife watching</h3>
+          <p>We look for bison and other species living in the area. Sightings always depend on nature.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container highlight">
+      <p class="eyebrow">Why book</p>
+      <h2 class="section-title">This is not just another excursion.</h2>
+      <p class="lead">It is a real nature experience: boat access, high-mountain scenery and the chance to see bison in a landscape that surprises even those who already know Riaño.</p>
+
+      <div class="features">
+        <div class="feature"><strong>Exclusive</strong><span>Limited places per departure</span></div>
+        <div class="feature"><strong>Photogenic</strong><span>Perfect to remember and share</span></div>
+        <div class="feature"><strong>Authentic</strong><span>Nature without artifices</span></div>
+        <div class="feature"><strong>Local</strong><span>In the León Fjords</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container grid-2">
+      <div class="content-card">
+        <p class="eyebrow">Useful information</p>
+        <h2 class="section-title">Before you come</h2>
+        <p class="lead">We recommend bringing comfortable footwear, water, sun protection and clothing suitable for the weather. The activity may be modified or postponed if conditions are not safe.</p>
+        <div class="details">
+          <div class="detail"><strong>Adults</strong><span>€59</span></div>
+          <div class="detail"><strong>Children</strong><span>€49</span></div>
+          <div class="detail"><strong>Days</strong><span>Saturdays and Sundays</span></div>
+          <div class="detail"><strong>Booking</strong><span>Via WhatsApp</span></div>
+        </div>
+      </div>
+      <div class="photo-card">
+        <img src="img/bisonte.jpg" alt="Bison in the Anciles Valley" />
+      </div>
+    </div>
+  </section>
+
+  <section class="reserve">
+    <div class="reserve-box">
+      <h2>Discover why everyone is talking about this.</h2>
+      <p>Message us on WhatsApp and we will confirm availability, times and places for the next departure.</p>
+      <a class="btn btn-primary" href="https://wa.me/34655703034?text=Hello%2C%20I%20would%20like%20information%20about%20the%20Bison%20Route%20in%20Ria%C3%B1o" target="_blank" rel="noopener">I want to book</a>
+    </div>
+  </section>
+
+  <footer>
+    Ubuntu Aventuras · Active Tourism PTA-LE78 · Riaño, León, Spain · ubuntuaventuras.es
+  </footer>
+
+  <script>
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', function (event) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>
