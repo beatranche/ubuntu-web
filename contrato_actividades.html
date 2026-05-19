@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Contrato Actividades con Guía — Ubuntu Aventuras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --prim:#2e5b6b; --acent:#e1be7c; --dark:#1a3540; --light:#f0f6f8; --white:#ffffff; --text:#2c3e50; --muted:#6c7a89; --error:#dc3545; --ok:#28a745; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:var(--light); color:var(--text); min-height:100vh; }
+        .header { background:linear-gradient(135deg,var(--prim),var(--dark)); padding:24px 20px; text-align:center; }
+        .header h1 { font-family:'Playfair Display',serif; color:var(--white); font-size:1.4rem; margin-bottom:4px; }
+        .header p { color:rgba(255,255,255,0.7); font-size:0.85rem; }
+        .badge { display:inline-block; background:rgba(225,190,124,0.2); border:1px solid rgba(225,190,124,0.4); color:var(--acent); padding:3px 12px; border-radius:12px; font-size:0.75rem; margin-bottom:10px; }
+        .reserva-info { background:var(--white); margin:16px; border-radius:12px; padding:16px 20px; border-left:4px solid var(--acent); display:none; }
+        .reserva-info.visible { display:block; }
+        .reserva-info h3 { color:var(--prim); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+        .reserva-row { display:flex; justify-content:space-between; font-size:0.9rem; padding:4px 0; border-bottom:1px solid var(--light); }
+        .reserva-row:last-child { border-bottom:none; }
+        .reserva-row span:first-child { color:var(--muted); }
+        .reserva-row span:last-child { font-weight:600; color:var(--prim); }
+        .seccion { background:var(--white); margin:12px 16px; border-radius:12px; padding:20px; }
+        .seccion h2 { font-size:0.95rem; font-weight:700; color:var(--prim); margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid var(--light); display:flex; align-items:center; gap:8px; }
+        .campo { margin-bottom:16px; }
+        .campo label { display:block; font-size:0.82rem; font-weight:600; color:var(--prim); margin-bottom:6px; }
+        .campo input,.campo select,.campo textarea { width:100%; padding:12px 14px; border:2px solid #e8eef2; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--text); transition:border-color 0.2s; background:var(--white); -webkit-appearance:none; }
+        .campo input:focus,.campo select:focus,.campo textarea:focus { outline:none; border-color:var(--prim); }
+        .campo input.campo-ok { border-color:var(--ok); }
+        .campo input.campo-error { border-color:var(--error); }
+        .campo textarea { resize:vertical; min-height:70px; }
+        .campo-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .campo-msg { font-size:0.78rem; margin-top:4px; min-height:16px; }
+        .campo-msg.ok { color:var(--ok); }
+        .campo-msg.error { color:var(--error); }
+        .participante { background:var(--light); border-radius:8px; padding:12px; margin-bottom:10px; position:relative; }
+        .participante-titulo { font-size:0.8rem; font-weight:700; color:var(--prim); margin-bottom:10px; }
+        .btn-del-part { position:absolute; top:8px; right:8px; background:#f8d7da; border:none; color:var(--error); font-size:0.78rem; cursor:pointer; padding:3px 8px; border-radius:6px; font-weight:700; }
+        #btn-add-part { width:100%; padding:10px; background:transparent; border:2px dashed var(--prim); border-radius:8px; color:var(--prim); font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; cursor:pointer; }
+        .clausulas-box { background:var(--light); border-radius:8px; padding:14px; max-height:220px; overflow-y:auto; font-size:0.82rem; color:var(--muted); line-height:1.7; margin-bottom:14px; }
+        .clausulas-box p { margin-bottom:6px; }
+        .check-item { display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--light); border-radius:8px; margin-bottom:10px; }
+        .check-item input[type="checkbox"] { width:20px; height:20px; min-width:20px; margin-top:2px; accent-color:var(--prim); cursor:pointer; }
+        .check-item label { font-size:0.85rem; line-height:1.5; color:var(--text); cursor:pointer; }
+        .check-item a { color:var(--prim); }
+        .firma-container { border:2px solid var(--prim); border-radius:10px; overflow:hidden; background:var(--white); margin-bottom:10px; touch-action:none; }
+        #canvas-firma { display:block; width:100%; height:160px; cursor:crosshair; }
+        .btn-limpiar { padding:10px 20px; background:var(--light); border:none; border-radius:8px; color:var(--prim); font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; margin-bottom:10px; }
+        .firma-ok { background:#d4edda; color:#155724; border-radius:8px; padding:8px 14px; font-size:0.85rem; display:none; }
+        .firma-ok.visible { display:block; }
+        .btn-guardar { width:calc(100% - 32px); margin:16px; padding:18px; background:var(--prim); color:var(--white); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:1.05rem; font-weight:700; cursor:pointer; display:block; }
+        .btn-guardar:disabled { background:#aaa; cursor:not-allowed; }
+        .msg { margin:0 16px 16px; padding:14px 18px; border-radius:10px; font-size:0.9rem; display:none; }
+        .msg.error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; display:block; }
+        .exito-screen { display:none; text-align:center; padding:50px 20px; }
+        .exito-screen.visible { display:block; }
+        .exito-icon { font-size:4rem; margin-bottom:16px; }
+        .exito-screen h2 { font-family:'Playfair Display',serif; color:var(--prim); font-size:1.8rem; margin-bottom:12px; }
+        .exito-screen p { color:var(--muted); line-height:1.7; }
+        .btn-descarga { display:inline-flex; align-items:center; gap:8px; background:var(--acent); color:var(--dark); padding:14px 28px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700; border:none; cursor:pointer; margin-top:20px; }
+        .btn-descarga:hover { background:#d4a832; }
+        .aviso-actividad { background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:12px 14px; font-size:0.85rem; color:#856404; margin-bottom:12px; display:none; }
+        .aviso-actividad.visible { display:block; }
+        .footer-mini { text-align:center; padding:20px; font-size:0.78rem; color:var(--muted); }
+        .footer-mini a { color:var(--prim); }
+        .info-seguro { background:var(--light); border-radius:8px; padding:14px; font-size:0.82rem; color:var(--muted); line-height:1.6; margin-bottom:12px; border-left:3px solid var(--acent); }
+        .info-seguro strong { color:var(--prim); }
+        .consentimiento-foto { display:flex; gap:16px; margin-top:8px; }
+        .radio-opcion { display:flex; align-items:center; gap:8px; font-size:0.9rem; cursor:pointer; }
+        .radio-opcion input[type="radio"] { width:18px; height:18px; accent-color:var(--prim); cursor:pointer; }
+        @media (max-width:480px) {
+            .campo-row { grid-template-columns:1fr; gap:0; }
+            .seccion { padding:16px 14px; margin:8px 10px; }
+            .btn-guardar { width:calc(100% - 20px); margin:10px; padding:16px; font-size:1rem; }
+            .msg { margin:0 10px 12px; }
+            .reserva-info { margin:10px; }
+            .header h1 { font-size:1.2rem; }
+            .campo input,.campo select,.campo textarea { font-size:1rem; padding:14px 12px; }
+            .campo label { font-size:0.9rem; margin-bottom:8px; }
+            .check-item { padding:14px 12px; }
+            .check-item label { font-size:0.88rem; }
+            .check-item input[type="checkbox"] { width:22px; height:22px; min-width:22px; }
+            #btn-add-part { padding:14px; font-size:0.95rem; }
+            .btn-limpiar { width:100%; padding:14px; font-size:0.95rem; }
+            .clausulas-box { font-size:0.85rem; max-height:180px; }
+            #canvas-firma { height:130px; }
+            .btn-descarga { width:100%; max-width:340px; justify-content:center; }
+            .exito-screen { padding:30px 16px; }
+            .exito-screen h2 { font-size:1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="https://ubuntuaventuras.github.io/ubuntu-web/logo.png" alt="Ubuntu Aventuras"
+         style="width:70px;height:70px;object-fit:contain;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"
+         onerror="this.style.display='none'">
+    <div class="badge">Contrato Digital · PTA-LE78</div>
+    <h1>Ubuntu Aventuras</h1>
+    <p>Contrato de actividad con guía</p>
+</div>
+
+<div class="reserva-info" id="reserva-info">
+    <h3>📋 Tu reserva</h3>
+    <div class="reserva-row"><span>Actividad</span><span id="ri-actividad">—</span></div>
+    <div class="reserva-row"><span>Fecha</span><span id="ri-fecha">—</span></div>
+    <div class="reserva-row"><span>Hora</span><span id="ri-hora">—</span></div>
+    <div class="reserva-row"><span>Personas</span><span id="ri-personas">—</span></div>
+    <div class="reserva-row"><span>Precio</span><span id="ri-precio">—</span></div>
+</div>
+
+<div id="formulario">
+
+    <!-- 1. DATOS PERSONALES -->
+    <div class="seccion">
+        <h2>👤 Datos personales</h2>
+        <div class="campo">
+            <label>Nombre y apellidos *</label>
+            <input type="text" id="nombre" placeholder="Tu nombre completo" autocomplete="name">
+        </div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>DNI / Pasaporte *</label>
+                <input type="text" id="dni" placeholder="12345678A">
+            </div>
+            <div class="campo">
+                <label>Fecha de nacimiento *</label>
+                <input type="date" id="fecha-nac" onchange="validarEdad(this)">
+                <div class="campo-msg" id="msg-edad"></div>
+            </div>
+        </div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Teléfono *</label>
+                <input type="tel" id="telefono" placeholder="655 123 456" autocomplete="tel">
+            </div>
+            <div class="campo">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" onblur="validarEmail(this)">
+                <div class="campo-msg" id="msg-email"></div>
+            </div>
+        </div>
+        <div class="campo">
+            <label>Dirección completa *</label>
+            <input type="text" id="direccion" placeholder="Calle, número, localidad, provincia" autocomplete="street-address">
+        </div>
+    </div>
+
+    <!-- 2. MENORES DE EDAD -->
+    <div class="seccion">
+        <h2>👶 Menores de edad</h2>
+        <div class="campo">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" id="tiene-menores" style="width:18px;height:18px;accent-color:var(--prim);" onchange="toggleMenores()">
+                Hay menores de edad en el grupo
+            </label>
+        </div>
+        <div id="tutor-fields" style="display:none;">
+            <div class="campo-row">
+                <div class="campo">
+                    <label>Nombre del tutor legal *</label>
+                    <input type="text" id="tutor-nombre" placeholder="Nombre completo">
+                </div>
+                <div class="campo">
+                    <label>DNI del tutor *</label>
+                    <input type="text" id="tutor-dni" placeholder="12345678A">
+                </div>
+            </div>
+            <div class="campo">
+                <label>Nombre(s) del/los menor(es) *</label>
+                <input type="text" id="menores-nombres" placeholder="Nombre y apellidos de cada menor">
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. PARTICIPANTES ADICIONALES -->
+    <div class="seccion">
+        <h2>👥 Participantes adicionales</h2>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Añade el nombre y DNI de cada participante además del titular.</p>
+        <div id="participantes-lista"></div>
+        <button id="btn-add-part" type="button" onclick="addParticipante()">+ Añadir participante</button>
+    </div>
+
+    <!-- 4. DATOS DE LA ACTIVIDAD -->
+    <div class="seccion">
+        <h2>🧭 Datos de la actividad</h2>
+        <div class="aviso-actividad" id="aviso-actividad"></div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Actividad *</label>
+                <select id="actividad" onchange="onActividadChange()">
+                    <option value="">Seleccionar...</option>
+                    <option value="Ruta Bisontes">🦬 Ruta de Bisontes</option>
+                    <option value="Senderismo">🥾 Senderismo</option>
+                    <option value="Via Ferrata Cistierna">🧗 Vía Ferrata Cistierna</option>
+                    <option value="Via Ferrata Sabero">🧗 Vía Ferrata Sabero</option>
+                    <option value="Via Ferrata Valdeón">🧗 Vía Ferrata Valdeón</option>
+                    <option value="Kayak guiado">🛶 Kayak con guía</option>
+                    <option value="Barranquismo">💧 Barranquismo</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Nº de personas *</label>
+                <input type="number" id="cantidad" min="1" max="60" value="1">
+            </div>
+        </div>
+        <!-- Campo especial Ruta Bisontes -->
+        <div id="fila-bisontes" style="display:none;">
+            <div class="campo-row">
+                <div class="campo">
+                    <label>Adultos (59 €/persona)</label>
+                    <input type="number" id="bisontes-adultos" min="0" max="60" value="1" onchange="calcBisontes()">
+                </div>
+                <div class="campo">
+                    <label>Niños hasta 14 años (49 €/persona)</label>
+                    <input type="number" id="bisontes-ninos" min="0" max="60" value="0" onchange="calcBisontes()">
+                </div>
+            </div>
+        </div>
+        <div class="campo-row">
+            <div class="campo">
+                <label>Fecha de la actividad *</label>
+                <input type="date" id="fecha-actividad">
+            </div>
+            <div class="campo">
+                <label>Hora de inicio *</label>
+                <input type="time" id="hora-inicio">
+            </div>
+        </div>
+        <div class="campo">
+            <label>Precio total (€) *</label>
+            <input type="number" id="precio" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="campo">
+            <label>Observaciones / Notas</label>
+            <textarea id="notas" placeholder="Cualquier información relevante sobre el grupo o la actividad..."></textarea>
+        </div>
+    </div>
+
+    <!-- 5. INFORMACIÓN PREVIA Y APTITUD -->
+    <div class="seccion">
+        <h2>💪 Información previa y aptitud</h2>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">Lee atentamente y marca cada declaración para confirmar.</p>
+        <div id="aptitud-checks"></div>
+    </div>
+
+    <!-- 6. CONDICIONES GENERALES -->
+    <div class="seccion">
+        <h2>📋 Condiciones generales y específicas</h2>
+        <div class="clausulas-box" id="clausulas-box">
+            <p style="color:var(--muted);font-style:italic;">Selecciona una actividad para ver las condiciones aplicables.</p>
+        </div>
+        <div class="check-item">
+            <input type="checkbox" id="acepta-condiciones">
+            <label for="acepta-condiciones">He leído y acepto todas las condiciones generales y las condiciones específicas de la actividad contratada con Ubuntu Aventuras.</label>
+        </div>
+    </div>
+
+    <!-- 7. ASUNCIÓN DE RIESGOS -->
+    <div class="seccion">
+        <h2>⚠️ Asunción de riesgos</h2>
+        <div class="check-item">
+            <input type="checkbox" id="acepta-riesgos">
+            <label for="acepta-riesgos">Declaro conocer y asumir los riesgos inherentes a la práctica de la actividad contratada, incluyendo los derivados de las condiciones meteorológicas, del terreno o del entorno natural. Me comprometo a no separarme de los monitores/guías y a seguir sus indicaciones en todo momento. Entiendo que Ubuntu Aventuras puede suspender o interrumpir la actividad si aprecia circunstancias que comprometan la seguridad de los participantes, sin que ello genere derecho a indemnización, ofreciéndose en su caso un cambio de fecha.</label>
+        </div>
+    </div>
+
+    <!-- 8. SEGUROS -->
+    <div class="seccion">
+        <h2>🛡️ Cobertura de seguros</h2>
+        <div class="info-seguro">
+            <strong>Seguro de Accidente y Asistencia en Viaje</strong><br>
+            Compañía: Mútua de Terrassa · Póliza nº 111266 · Tomador: Ubuntu Aventuras<br>
+            Vigencia: 04/06/2025 – 04/06/2026<br>
+            <strong>Garantías:</strong> Muerte: 3.000 € · Gastos de curación, rescate y traslado: 6.000 € · Invalidez Permanente: 6.000 €<br><br>
+            <strong>Seguro de Responsabilidad Civil</strong><br>
+            Compañía: Iberian Insurance Group, S.L · Nº póliza LL02020000310-C · Tomador: Sergio Guerrero Sánchez<br>
+            Capital asegurado: 602.000,00 €
+        </div>
+        <div class="check-item">
+            <input type="checkbox" id="acepta-seguros">
+            <label for="acepta-seguros">Declaro conocer y aceptar las coberturas, importes y entidades aseguradoras indicadas. Entiendo que cualquier incidencia o accidente durante la actividad debe comunicarse antes de la finalización de la misma a los monitores/guías, y que Ubuntu Aventuras no se hace responsable de las incidencias no comunicadas ni de sus consecuencias.</label>
+        </div>
+    </div>
+
+    <!-- 9. PROTECCIÓN DE DATOS (RGPD) -->
+    <div class="seccion">
+        <h2>🔒 Protección de datos (RGPD)</h2>
+        <div style="background:var(--light);border-radius:8px;padding:14px;font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:12px;">
+            <strong style="color:var(--prim);">Responsable:</strong> Ubuntu Aventuras · Sergio Guerrero Sánchez · NIF 09806738K · hola@ubuntuaventuras.es · Carretera Riaño-Verdiago Nº4, Verdiago (León)<br><br>
+            <strong style="color:var(--prim);">Finalidad:</strong> Prestación del servicio contratado, gestión de la seguridad de los participantes y cumplimiento de obligaciones legales.<br><br>
+            <strong style="color:var(--prim);">Conservación:</strong> Los datos se conservarán mientras se mantenga la relación o durante los años necesarios para cumplir con las obligaciones legales.<br><br>
+            <strong style="color:var(--prim);">Derechos:</strong> Puedes ejercer tus derechos de acceso, rectificación, supresión, limitación, portabilidad y oposición dirigiéndote a Ubuntu Aventuras.<br><br>
+            <strong style="color:var(--prim);">Base legal:</strong> Ejecución del contrato y cumplimiento de obligaciones legales (Art. 6.1.b y 6.1.c RGPD).
+        </div>
+        <div class="check-item">
+            <input type="checkbox" id="acepta-rgpd">
+            <label for="acepta-rgpd">He leído y acepto la política de privacidad de Ubuntu Aventuras y consiento el tratamiento de mis datos personales para la gestión de este contrato.</label>
+        </div>
+        <!-- Consentimiento imágenes -->
+        <div style="background:var(--light);border-radius:8px;padding:14px;margin-top:4px;">
+            <p style="font-size:0.85rem;color:var(--text);margin-bottom:10px;">Autorización para el uso de imágenes realizadas durante la actividad con fines promocionales:</p>
+            <div class="consentimiento-foto">
+                <label class="radio-opcion">
+                    <input type="radio" name="foto-consent" id="foto-si" value="si">
+                    ✅ Sí, doy mi consentimiento
+                </label>
+                <label class="radio-opcion">
+                    <input type="radio" name="foto-consent" id="foto-no" value="no" checked>
+                    ❌ No, no doy mi consentimiento
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. FIRMA -->
+    <div class="seccion">
+        <h2>✍️ Firma del participante</h2>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Firma con el dedo o el ratón en el recuadro de abajo.</p>
+        <div class="firma-container"><canvas id="canvas-firma"></canvas></div>
+        <button class="btn-limpiar" onclick="limpiarFirma()">🗑️ Borrar firma</button>
+        <div class="firma-ok" id="firma-ok">✅ Firma registrada</div>
+    </div>
+
+    <button class="btn-guardar" id="btn-guardar" onclick="guardarContrato()">💾 Firmar y guardar contrato</button>
+    <div class="msg" id="msg-result"></div>
+</div>
+
+<!-- PANTALLA DE ÉXITO -->
+<div class="exito-screen" id="exito-screen">
+    <div class="exito-icon">✅</div>
+    <h2>¡Contrato firmado!</h2>
+    <p>Tu contrato ha sido registrado correctamente.<br>Número de referencia: <strong id="contrato-id-ok"></strong></p>
+    <br>
+    <button class="btn-descarga" onclick="descargarPDF()">📄 Descargar mi contrato</button>
+    <br><br>
+    <p style="font-size:0.85rem;">Ubuntu Aventuras te espera.<br>📞 655 703 034 · 💬 Bizum: 605 702 670</p>
+</div>
+
+<div class="footer-mini">Ubuntu Aventuras · PTA-LE78 · Reg. Turismo Castilla y León · <a href="privacidad.html">Privacidad</a> · <a href="aviso-legal.html">Aviso legal</a></div>
+
+<script>
+const SUPABASE_URL  = 'https://rhuypwyxoethdezglcah.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_TqI43DBHh_K5mnYVE_f0sA_5dOokgsT';
+
+// ──────────────────────────────────────────────
+//  DATOS ACTIVIDADES CON GUÍA
+// ──────────────────────────────────────────────
+const AVISOS_ACTIVIDAD = {
+    bisontes:  "🦬 Ruta de Bisontes — Itinerario guiado en vehículo y a pie. Incluye visita al recinto. No recomendado para personas con movilidad muy reducida.",
+    senderismo:"🥾 Senderismo — Ruta por terreno irregular con guía. Lleva calzado y ropa adecuados.",
+    ferrata:   "🧗 Vía Ferrata — Actividad de montaña con exigencia física media-alta. Equipo de seguridad obligatorio en todo momento.",
+    kayak:     "🛶 Kayak con guía — Actividad acuática guiada. Chaleco salvavidas obligatorio. Necesario saber nadar o comunicarlo previamente.",
+    barranquismo:"💧 Barranquismo — Actividad de montaña y agua con exigencia técnica. Neopreno y equipo de seguridad obligatorio.",
+};
+
+const CONDICIONES_ESPECIFICAS = {
+    bisontes:[
+        "La actividad consiste en un recorrido guiado para la observación de bisontes en su hábitat natural. El participante se compromete a seguir en todo momento las indicaciones del guía.",
+        "Está estrictamente prohibido alejarse del grupo, hacer ruidos excesivos, intentar acercarse a los animales por cuenta propia o cualquier acción que pueda alterar el comportamiento de la fauna.",
+        "Ubuntu Aventuras puede modificar el recorrido o suspender la actividad por condiciones meteorológicas, de seguridad o relacionadas con el comportamiento de los animales.",
+        "El participante declara poder realizar desplazamientos a pie por terreno de montaña durante el tiempo previsto de la actividad.",
+    ],
+    senderismo:[
+        "El participante declara poder realizar caminatas por terreno irregular durante el tiempo previsto de la actividad y llevar el equipamiento adecuado (calzado de senderismo, ropa apropiada).",
+        "Se debe seguir en todo momento las indicaciones del guía. Queda prohibido separarse del grupo o avanzar por zonas no autorizadas.",
+        "Ubuntu Aventuras puede modificar el recorrido o suspender la actividad por condiciones meteorológicas o de seguridad.",
+        "El participante es responsable de llevar agua suficiente y la alimentación necesaria para el recorrido contratado.",
+    ],
+    ferrata:[
+        "El participante declara tener el nivel físico y técnico necesario para la vía ferrata contratada y haber sido informado de su grado de dificultad.",
+        "Es obligatorio el uso del equipo de seguridad completo (arnés, casco y set de vía ferrata) durante toda la actividad. Dicho equipo es proporcionado por Ubuntu Aventuras salvo acuerdo expreso en contrario.",
+        "Se debe seguir en todo momento las indicaciones del guía. Queda expresamente prohibido separarse del grupo o avanzar por zonas no autorizadas.",
+        "Ubuntu Aventuras puede impedir la participación o interrumpir la actividad si aprecia que el participante no reúne las condiciones físicas o técnicas necesarias para la seguridad del grupo.",
+    ],
+    kayak:[
+        "El participante declara saber nadar o haber comunicado previamente a Ubuntu Aventuras cualquier circunstancia que requiera adaptación o asistencia específica.",
+        "Es obligatorio el uso del chaleco salvavidas en todo momento durante la actividad.",
+        "Se debe seguir en todo momento las instrucciones del guía. No se permite el acceso a la actividad bajo los efectos del alcohol, drogas o cualquier sustancia.",
+        "El participante es responsable del material durante la actividad. Cualquier daño o pérdida por uso indebido será abonado.",
+    ],
+    barranquismo:[
+        "El participante declara tener el nivel físico necesario para la actividad y no presentar fobia al agua ni a los espacios cerrados.",
+        "Es obligatorio el uso del neopreno, casco y arnés durante toda la actividad. El equipo es proporcionado por Ubuntu Aventuras.",
+        "Se debe seguir en todo momento las indicaciones del guía. Está prohibido avanzar por zonas no autorizadas o realizar maniobras alternativas a las indicadas.",
+        "Ubuntu Aventuras puede impedir la participación o modificar el recorrido si las condiciones del cañón, el caudal del agua o las condiciones del participante así lo aconsejan.",
+    ],
+};
+
+const CONDICIONES_GENERALES = [
+    "He sido informado de la actividad a realizar, de las fechas y horarios, del precio final y de las condiciones de cancelación. Tengo a mi disposición la ficha técnica conforme a la normativa turística de Castilla y León.",
+    "Con carácter previo a la actividad he sido informado por el personal técnico de las normas de autoprotección y seguridad. Me comprometo a no separarme de los monitores y a seguir sus indicaciones en todo momento.",
+    "Ubuntu Aventuras se reserva el derecho de modificar y/o anular actividades cuando, a criterio de los monitores, se exponga la seguridad del grupo o de alguno de sus integrantes, o cualquier condición que afecte a la actividad no sea la adecuada.",
+    "Ubuntu Aventuras no se responsabiliza de los objetos personales perdidos, olvidados o dañados durante la actividad.",
+    "El pago se realiza en el momento de inicio de la actividad, mediante efectivo, tarjeta o Bizum (605 702 670), salvo acuerdo previo distinto.",
+    "He sido informado de que tengo a mi disposición hojas de reclamación según establece la normativa turística de Castilla y León.",
+    "Se debe respetar en todo momento el entorno natural, no arrojando desperdicios ni recogiendo o causando daño alguno. El participante asume la responsabilidad derivada de los posibles daños causados por sus acciones.",
+];
+
+const APTITUD_BASE = [
+    {id:"apt_general", texto:"Declaro encontrarme en condiciones físicas adecuadas para realizar la actividad contratada. Declaro que no padezco ni he padecido enfermedad, dolencia, lesión o impedimento físico o psicológico que pueda afectarme durante la actividad. En caso de duda, me comprometo a informar previamente a Ubuntu Aventuras."},
+    {id:"apt_instrucciones", texto:"He sido informado de forma verbal de las normas de autoprotección y seguridad. Poseo el necesario grado de destreza para la práctica de la actividad y conozco y asumo los riesgos inherentes que esta conlleva."},
+    {id:"apt_alcohol", texto:"Declaro no estar bajo los efectos del alcohol, drogas u otras sustancias que puedan alterar mi capacidad de reacción o coordinación durante la actividad."},
+];
+
+const APTITUD_ESPECIFICA = {
+    ferrata:     {id:"apt_ferrata",    texto:"Para vía ferrata: declaro conocer las exigencias físicas y técnicas de la actividad, asumir el uso obligatorio de arnés, casco y set de ferrata, y encontrarme en condiciones adecuadas para realizarla."},
+    kayak:       {id:"apt_kayak",      texto:"Para kayak guiado: declaro saber nadar o haber comunicado previamente cualquier circunstancia que requiera adaptación. Entiendo que el chaleco salvavidas es obligatorio en todo momento."},
+    barranquismo:{id:"apt_barrancos",  texto:"Para barranquismo: declaro no presentar fobia al agua ni a espacios cerrados, y encontrarme en condiciones físicas adecuadas para esta actividad con exigencia técnica."},
+    senderismo:  {id:"apt_sende",      texto:"Para senderismo: declaro poder realizar caminatas por terreno irregular durante el tiempo previsto y llevar el calzado y equipamiento adecuado."},
+    bisontes:    {id:"apt_bisontes",   texto:"Para la Ruta de Bisontes: declaro poder desplazarme por terreno de montaña y me comprometo a respetar estrictamente las indicaciones del guía respecto al comportamiento ante la fauna."},
+};
+
+// ──────────────────────────────────────────────
+//  HELPERS
+// ──────────────────────────────────────────────
+function _tipoActividad(act) {
+    if (act === 'Ruta Bisontes') return 'bisontes';
+    if (act === 'Senderismo') return 'senderismo';
+    if (act.startsWith('Via Ferrata')) return 'ferrata';
+    if (act === 'Kayak guiado') return 'kayak';
+    if (act === 'Barranquismo') return 'barranquismo';
+    return 'senderismo';
+}
+
+function validarEmail(input) {
+    const val=input.value.trim(), msg=document.getElementById('msg-email');
+    if (!val) { input.className=''; msg.className='campo-msg'; msg.textContent=''; return; }
+    const ok=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
+    input.className=ok?'campo-ok':'campo-error';
+    msg.className=ok?'campo-msg ok':'campo-msg error';
+    msg.textContent=ok?'✅ Email válido':'❌ Formato incorrecto (ej: nombre@dominio.com)';
+}
+
+function validarEdad(input) {
+    const val=input.value, msg=document.getElementById('msg-edad');
+    if (!val) { input.className=''; msg.className='campo-msg'; msg.textContent=''; return; }
+    const hoy=new Date(), nac=new Date(val);
+    let edad=hoy.getFullYear()-nac.getFullYear();
+    if (hoy<new Date(hoy.getFullYear(),nac.getMonth(),nac.getDate())) edad--;
+    const esMenor=document.getElementById('tiene-menores').checked;
+    if (edad<0||edad>120) { input.className='campo-error'; msg.className='campo-msg error'; msg.textContent='❌ Fecha inválida'; }
+    else if (edad<18&&!esMenor) { input.className='campo-error'; msg.className='campo-msg error'; msg.textContent=`❌ Menor de edad (${edad} años). Activa la opción de menores.`; }
+    else { input.className='campo-ok'; msg.className='campo-msg ok'; msg.textContent=`✅ ${edad} años`; }
+}
+
+function onActividadChange() {
+    const act=document.getElementById('actividad').value;
+    const esBisontes=act==='Ruta Bisontes';
+    document.getElementById('fila-bisontes').style.display=esBisontes?'block':'none';
+    if(esBisontes) calcBisontes();
+    actualizarCondiciones();
+}
+
+function calcBisontes() {
+    const a=parseInt(document.getElementById('bisontes-adultos').value)||0;
+    const n=parseInt(document.getElementById('bisontes-ninos').value)||0;
+    document.getElementById('precio').value=(a*59+n*49).toFixed(2);
+    document.getElementById('cantidad').value=a+n;
+}
+
+function actualizarCondiciones() {
+    const act=document.getElementById('actividad').value;
+    if (!act) return;
+    const tipo=_tipoActividad(act);
+    const aviso=document.getElementById('aviso-actividad');
+    if (AVISOS_ACTIVIDAD[tipo]) { aviso.textContent=AVISOS_ACTIVIDAD[tipo]; aviso.classList.add('visible'); }
+    else aviso.classList.remove('visible');
+    const box=document.getElementById('clausulas-box');
+    box.innerHTML='';
+    const especificas=CONDICIONES_ESPECIFICAS[tipo]||[];
+    [...especificas,...CONDICIONES_GENERALES].forEach((c,i)=>{
+        const p=document.createElement('p');
+        p.textContent=`${i+1}. ${c}`;
+        box.appendChild(p);
+    });
+    const cont=document.getElementById('aptitud-checks');
+    cont.innerHTML='';
+    const checks=[...APTITUD_BASE];
+    if (APTITUD_ESPECIFICA[tipo]) checks.push(APTITUD_ESPECIFICA[tipo]);
+    if (document.getElementById('tiene-menores').checked) {
+        checks.push({id:"apt_menor", texto:"Como tutor legal, declaro conocer las características de la actividad y autorizo expresamente la participación del/los menor/es indicados, manifestando que se encuentran en condiciones físicas adecuadas para realizarla."});
+    }
+    checks.forEach(ch=>{
+        const div=document.createElement('div');
+        div.className='check-item';
+        div.innerHTML=`<input type="checkbox" id="${ch.id}"><label for="${ch.id}">${ch.texto}</label>`;
+        cont.appendChild(div);
+    });
+}
+
+function toggleMenores() {
+    const checked=document.getElementById('tiene-menores').checked;
+    document.getElementById('tutor-fields').style.display=checked?'block':'none';
+    actualizarCondiciones();
+    const fn=document.getElementById('fecha-nac'); if(fn.value) validarEdad(fn);
+}
+
+// ──────────────────────────────────────────────
+//  PARTICIPANTES ADICIONALES
+// ──────────────────────────────────────────────
+let numPart=0;
+function addParticipante() {
+    numPart++;
+    const id=numPart, div=document.createElement('div');
+    div.className='participante'; div.id=`participante-${id}`;
+    div.innerHTML=`<div class="participante-titulo">Participante ${id}</div>
+    <button class="btn-del-part" type="button" onclick="delParticipante(${id})">✕ Quitar</button>
+    <div class="campo-row">
+        <div class="campo"><label>Nombre</label><input type="text" id="part-nombre-${id}" placeholder="Nombre y apellidos"></div>
+        <div class="campo"><label>DNI</label><input type="text" id="part-dni-${id}" placeholder="12345678A"></div>
+    </div>`;
+    document.getElementById('participantes-lista').appendChild(div);
+}
+function delParticipante(id) { const el=document.getElementById(`participante-${id}`); if(el) el.remove(); }
+
+// ──────────────────────────────────────────────
+//  CANVAS FIRMA
+// ──────────────────────────────────────────────
+(function(){
+    const hoy=new Date(), pad=n=>String(n).padStart(2,'0');
+    document.getElementById('fecha-actividad').value=`${hoy.getFullYear()}-${pad(hoy.getMonth()+1)}-${pad(hoy.getDate())}`;
+    document.getElementById('hora-inicio').value=`${pad(hoy.getHours())}:${pad(hoy.getMinutes())}`;
+})();
+
+// Cargar reserva por URL param
+const params=new URLSearchParams(window.location.search);
+const reservaId=params.get('reserva');
+if (reservaId) {
+    fetch(`${SUPABASE_URL}/rest/v1/reservas?id=eq.${reservaId}&select=*`,{headers:{'apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`}})
+    .then(r=>r.json()).then(data=>{
+        if (data&&data[0]) {
+            const r=data[0];
+            document.getElementById('reserva-info').classList.add('visible');
+            document.getElementById('ri-actividad').textContent=r.actividad||'—';
+            document.getElementById('ri-fecha').textContent=r.fecha_actividad?new Date(r.fecha_actividad+'T12:00:00').toLocaleDateString('es-ES'):'—';
+            document.getElementById('ri-hora').textContent=r.hora_inicio?r.hora_inicio.slice(0,5):'—';
+            document.getElementById('ri-personas').textContent=r.personas||'—';
+            document.getElementById('ri-precio').textContent=r.precio?r.precio+' €':'—';
+            if(r.nombre) document.getElementById('nombre').value=r.nombre;
+            if(r.actividad){document.getElementById('actividad').value=r.actividad;onActividadChange();}
+            if(r.personas) document.getElementById('cantidad').value=r.personas;
+            if(r.precio) document.getElementById('precio').value=r.precio;
+            if(r.fecha_actividad) document.getElementById('fecha-actividad').value=r.fecha_actividad;
+            if(r.hora_inicio) document.getElementById('hora-inicio').value=r.hora_inicio.slice(0,5);
+            document.getElementById('btn-guardar').dataset.reservaId=r.id;
+            document.getElementById('btn-guardar').dataset.reservationId=r.reservation_id||'';
+        }
+    }).catch(()=>{});
+}
+
+const canvas=document.getElementById('canvas-firma'), ctx=canvas.getContext('2d');
+let dibujando=false, firmaVacia=true;
+function ajustarCanvas(){const rect=canvas.getBoundingClientRect();canvas.width=rect.width*window.devicePixelRatio;canvas.height=rect.height*window.devicePixelRatio;ctx.scale(window.devicePixelRatio,window.devicePixelRatio);ctx.strokeStyle='#1a1a1a';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';}
+ajustarCanvas(); window.addEventListener('resize',ajustarCanvas);
+function getPos(e){const rect=canvas.getBoundingClientRect(),src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
+canvas.addEventListener('mousedown',e=>{dibujando=true;ctx.beginPath();const p=getPos(e);ctx.moveTo(p.x,p.y);firmaVacia=false;});
+canvas.addEventListener('mousemove',e=>{if(!dibujando)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();});
+canvas.addEventListener('mouseup',()=>{dibujando=false;if(!firmaVacia)document.getElementById('firma-ok').classList.add('visible');});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();dibujando=true;ctx.beginPath();const p=getPos(e);ctx.moveTo(p.x,p.y);firmaVacia=false;},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!dibujando)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
+canvas.addEventListener('touchend',()=>{dibujando=false;if(!firmaVacia)document.getElementById('firma-ok').classList.add('visible');});
+function limpiarFirma(){ctx.clearRect(0,0,canvas.width,canvas.height);firmaVacia=true;document.getElementById('firma-ok').classList.remove('visible');}
+
+async function _hashContrato(texto){try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(texto));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}catch(e){return 'no-disponible';}}
+
+// ──────────────────────────────────────────────
+//  GUARDAR CONTRATO
+// ──────────────────────────────────────────────
+async function guardarContrato(){
+    const btn=document.getElementById('btn-guardar'),msg=document.getElementById('msg-result');
+    msg.className='msg';
+    const act=document.getElementById('actividad').value;
+    const nombre=document.getElementById('nombre').value.trim();
+    const dni=document.getElementById('dni').value.trim();
+    const telefono=document.getElementById('telefono').value.trim();
+    const direccion=document.getElementById('direccion').value.trim();
+    const fechaAct=document.getElementById('fecha-actividad').value;
+    const fechaNac=document.getElementById('fecha-nac').value;
+    const emailVal=document.getElementById('email').value.trim();
+    const notas=document.getElementById('notas').value.trim();
+    const tieneMenores=document.getElementById('tiene-menores').checked;
+    const tutorNombre=document.getElementById('tutor-nombre')?.value.trim()||'';
+    const tutorDni=document.getElementById('tutor-dni')?.value.trim()||'';
+    const menoresNombres=document.getElementById('menores-nombres')?.value.trim()||'';
+    const aceptaCond=document.getElementById('acepta-condiciones').checked;
+    const aceptaRiesgos=document.getElementById('acepta-riesgos').checked;
+    const aceptaSeguros=document.getElementById('acepta-seguros').checked;
+    const aceptaRgpd=document.getElementById('acepta-rgpd').checked;
+    const fotoConsent=document.querySelector('input[name="foto-consent"]:checked')?.value||'no';
+    const aptitudChecks=document.querySelectorAll('#aptitud-checks input[type="checkbox"]');
+    const todasAptitud=[...aptitudChecks].every(c=>c.checked);
+
+    const errores=[];
+    if(!nombre) errores.push('Nombre');
+    if(!dni) errores.push('DNI');
+    if(!telefono) errores.push('Teléfono');
+    if(!direccion) errores.push('Dirección');
+    if(!act) errores.push('Actividad');
+    if(!fechaAct) errores.push('Fecha de la actividad');
+    if(!fechaNac) errores.push('Fecha de nacimiento');
+    if(fechaNac){const hoy=new Date(),nac=new Date(fechaNac);let edad=hoy.getFullYear()-nac.getFullYear();if(hoy<new Date(hoy.getFullYear(),nac.getMonth(),nac.getDate()))edad--;if(edad<18&&!tieneMenores)errores.push('Menor de edad sin tutor asignado');}
+    if(emailVal&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal))errores.push('Email con formato incorrecto');
+    if(tieneMenores&&!tutorNombre)errores.push('Nombre del tutor');
+    if(tieneMenores&&!menoresNombres)errores.push('Nombre del menor');
+    if(!todasAptitud)errores.push('Declaraciones de aptitud física (marca todas)');
+    if(!aceptaCond)errores.push('Condiciones generales');
+    if(!aceptaRiesgos)errores.push('Asunción de riesgos');
+    if(!aceptaSeguros)errores.push('Información sobre seguros');
+    if(!aceptaRgpd)errores.push('Política de privacidad');
+    if(firmaVacia)errores.push('Firma digital');
+    if(errores.length>0){msg.className='msg error';msg.textContent=`⚠️ Pendiente: ${errores.join(', ')}`;msg.scrollIntoView({behavior:'smooth'});return;}
+
+    btn.disabled=true; btn.textContent='Guardando...';
+    const participantes=[];
+    for(let i=1;i<=numPart;i++){const n=document.getElementById(`part-nombre-${i}`)?.value.trim(),d=document.getElementById(`part-dni-${i}`)?.value.trim();if(n)participantes.push({nombre:n,dni:d||''});}
+    const firmaData=canvas.toDataURL('image/png'), ahora=new Date();
+    const esBisontes=act==='Ruta Bisontes';
+    let cantidadFinal=parseInt(document.getElementById('cantidad').value)||1;
+    if(esBisontes) cantidadFinal=(parseInt(document.getElementById('bisontes-adultos').value)||0)+(parseInt(document.getElementById('bisontes-ninos').value)||0);
+    const hashContrato=await _hashContrato(`${nombre}|${dni}|${act}|${fechaAct}|${ahora.toISOString()}`);
+
+    const datos={
+        tipo_contrato:'actividad_guia',
+        reservation_id:btn.dataset.reservationId||null,
+        actividad:act,
+        cantidad:cantidadFinal,
+        precio:parseFloat(document.getElementById('precio').value)||0,
+        hora_inicio:document.getElementById('hora-inicio').value+':00',
+        fecha_actividad:fechaAct,
+        nombre,
+        provincia:direccion,
+        telefono,
+        email:emailVal||null,
+        dni,
+        fecha_nacimiento:fechaNac||null,
+        tiene_menores:tieneMenores,
+        tutor_nombre:tutorNombre||null,
+        tutor_dni:tutorDni||null,
+        menores_nombres:menoresNombres||null,
+        participantes,
+        notas:notas||null,
+        consentimiento_imagen:fotoConsent==='si',
+        firma_svg:firmaData,
+        firmado_en:ahora.toISOString(),
+        hash_contrato:hashContrato,
+        ip_firmante:'web-cliente',
+        creado_por:'cliente-web',
+        email_enviado:false,
+    };
+
+    try{
+        const res=await fetch(`${SUPABASE_URL}/rest/v1/contratos`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`,'Prefer':'return=representation'},body:JSON.stringify(datos)});
+        const result=await res.json();
+        if(res.ok||res.status===201){
+            const id=Array.isArray(result)?result[0]?.id:result?.id;
+            window._contratoFirmado={...datos,id}; window._firmaDataURL=firmaData;
+            _subirPDFStorage(id,datos,firmaData).catch(()=>{});
+            document.getElementById('formulario').style.display='none';
+            document.getElementById('exito-screen').classList.add('visible');
+            document.getElementById('contrato-id-ok').textContent=`#${id||'—'}`;
+        }else{throw new Error(result?.message||`Error ${res.status}`);}
+    }catch(err){
+        msg.className='msg error';
+        msg.textContent=`❌ Error: ${err.message}. Llámanos al 655 703 034.`;
+        btn.disabled=false; btn.textContent='💾 Firmar y guardar contrato';
+        msg.scrollIntoView({behavior:'smooth'});
+    }
+}
+
+// ──────────────────────────────────────────────
+//  PDF
+// ──────────────────────────────────────────────
+async function _subirPDFStorage(contratoId,datos,firmaData){
+    if(typeof window.jspdf==='undefined'){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+    const pdfBlob=await _generarPDFBlob({...datos,id:contratoId},firmaData);
+    if(!pdfBlob)return;
+    const nombre=(datos.nombre||'cliente').replace(/\s+/g,'_');
+    const filePath=`${contratoId}/contrato_guia_${contratoId}_${nombre}.pdf`;
+    const uploadRes=await fetch(`${SUPABASE_URL}/storage/v1/object/contratos-pdf/${filePath}`,{method:'POST',headers:{'apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`,'Content-Type':'application/pdf','x-upsert':'true'},body:pdfBlob});
+    if(uploadRes.ok){await fetch(`${SUPABASE_URL}/rest/v1/contratos?id=eq.${contratoId}`,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`},body:JSON.stringify({pdf_path:filePath})});}
+}
+
+async function _generarPDFBlob(d,firmaDataURL){
+    try{
+        const {jsPDF}=window.jspdf, doc=new jsPDF({unit:'mm',format:'a4'});
+        const PRIM=[46,91,107],ACENT=[225,190,124],LIGHT=[240,246,248]; let y=12;
+        doc.setFillColor(...PRIM);doc.rect(0,0,210,22,'F');
+        doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');
+        doc.text('CONTRATO ACTIVIDAD CON GUÍA — UBUNTU AVENTURAS · PTA-LE78',105,9,{align:'center'});
+        doc.setFontSize(7);doc.setFont('helvetica','normal');
+        doc.text(`#${d.id||'—'} · Firmado: ${new Date(d.firmado_en).toLocaleString('es-ES')} · hola@ubuntuaventuras.es · 655 703 034`,105,17,{align:'center'});
+        y=28;
+        const seccion=t=>{doc.setFillColor(...LIGHT);doc.rect(14,y,182,5,'F');doc.setTextColor(...PRIM);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.text(t,16,y+3.5);y+=7;};
+        const fila2=(l1,v1,l2,v2)=>{doc.setFont('helvetica','bold');doc.setTextColor(...PRIM);doc.setFontSize(7);doc.text(String(l1||''),16,y);if(l2)doc.text(String(l2||''),110,y);doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);doc.text(String(v1||'—').slice(0,36),42,y);if(l2)doc.text(String(v2||'—').slice(0,26),136,y);y+=5;};
+        seccion('DATOS DEL PARTICIPANTE Y ACTIVIDAD');
+        const fA=d.fecha_actividad?new Date(d.fecha_actividad+'T12:00:00').toLocaleDateString('es-ES'):'—';
+        const fN=d.fecha_nacimiento?new Date(d.fecha_nacimiento+'T12:00:00').toLocaleDateString('es-ES'):'—';
+        fila2('Nombre:',d.nombre,'Actividad:',d.actividad);
+        fila2('DNI:',d.dni,'Fecha:',fA);
+        fila2('F. nacim.:',fN,'Hora:',(d.hora_inicio||'').slice(0,5));
+        fila2('Teléfono:',d.telefono,'Personas:',d.cantidad);
+        fila2('Email:',d.email||'—','Precio:',`${parseFloat(d.precio||0).toFixed(2)} EUR`);
+        fila2('Dirección:',d.provincia||'—','',''); y+=2;
+        if(d.notas){seccion('OBSERVACIONES');doc.setFont('helvetica','normal');doc.setTextColor(50,50,50);doc.setFontSize(6.5);const nl=doc.splitTextToSize(d.notas,182);doc.text(nl,16,y);y+=nl.length*3.5+3;}
+        if(d.tiene_menores&&d.tutor_nombre){seccion('MENORES DE EDAD');fila2('Tutor:',d.tutor_nombre,'DNI tutor:',d.tutor_dni||'—');fila2('Menor(es):',d.menores_nombres||'—','','');y+=2;}
+        if(d.participantes&&d.participantes.length>0){seccion('PARTICIPANTES ADICIONALES');d.participantes.forEach((p,i)=>fila2(`${i+1}. ${p.nombre}`,`DNI: ${p.dni}`,'',''));y+=2;}
+        seccion('INFORMACIÓN Y CONDICIONES ACEPTADAS');
+        const tipo=_tipoActividad(d.actividad);
+        const especificas=CONDICIONES_ESPECIFICAS[tipo]||[];
+        const todas=[...especificas,...CONDICIONES_GENERALES];
+        doc.setFont('helvetica','normal');doc.setTextColor(50,50,50);doc.setFontSize(6);
+        let yL=y,yR=y;
+        todas.forEach((c,i)=>{const txt=`${i+1}. ${c}`;const isL=i%2===0;const lines=doc.splitTextToSize(txt,88);const h=lines.length*3.5+1;if(isL){doc.text(lines,16,yL);yL+=h;}else{doc.text(lines,107,yR);yR+=h;}});
+        y=Math.max(yL,yR)+3;
+        seccion('SEGUROS');
+        doc.setFont('helvetica','normal');doc.setTextColor(50,50,50);doc.setFontSize(6);
+        const seguro="ACCIDENTE: Mútua de Terrassa · Póliza 111266 · Coberturas: Muerte 3.000€ · Gastos curación/rescate/traslado 6.000€ · Invalidez Permanente 6.000€ || RESPONSABILIDAD CIVIL: Iberian Insurance Group · Póliza LL02020000310-C · Capital: 602.000€";
+        const sLines=doc.splitTextToSize(seguro,182);doc.text(sLines,16,y);y+=sLines.length*3.5+3;
+        seccion('FIRMA DIGITAL');
+        const firma=firmaDataURL||window._firmaDataURL;
+        if(firma&&firma.startsWith('data:image')){try{doc.addImage(firma,'PNG',16,y,55,18);}catch(e){}}
+        doc.setFont('helvetica','normal');doc.setTextColor(60,60,60);doc.setFontSize(7);
+        doc.text(`${d.nombre}`,77,y+6);
+        doc.text(`Firmado: ${new Date(d.firmado_en).toLocaleString('es-ES')}`,77,y+11);
+        doc.text(`Imágenes: ${d.consentimiento_imagen?'SÍ autoriza uso promocional':'NO autoriza uso promocional'}`,77,y+16);
+        doc.setFontSize(6);doc.setTextColor(140,140,140);doc.text(`Hash: ${(d.hash_contrato||'—').slice(0,32)}...`,77,y+21);y+=26;
+        doc.setDrawColor(...ACENT);doc.setLineWidth(0.5);doc.line(14,y,196,y);y+=4;
+        doc.setFontSize(6.5);doc.setTextColor(150,150,150);
+        doc.text('Ubuntu Aventuras · NIF 09806738K · Ctra. Riaño-Verdiago Nº4, 24960 Verdiago (León) · Reg. Turismo CyL · PTA-LE78',105,y,{align:'center'});
+        return doc.output('blob');
+    }catch(e){console.error('PDF error:',e);return null;}
+}
+
+function descargarPDF(){
+    const d=window._contratoFirmado;
+    if(!d){alert('No se puede identificar el contrato. Contacta con nosotros: 655 703 034');return;}
+    if(typeof window.jspdf==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=()=>_descargarBlob(d);document.head.appendChild(s);}
+    else _descargarBlob(d);
+}
+function _descargarBlob(d){
+    _generarPDFBlob(d,window._firmaDataURL).then(blob=>{
+        if(!blob)return;
+        const url=URL.createObjectURL(blob),a=document.createElement('a');
+        a.href=url;a.download=`contrato_guia_${d.id||'ubuntu'}_${(d.nombre||'').replace(/\s+/g,'_')}.pdf`;
+        a.click();URL.revokeObjectURL(url);
+    });
+}
+</script>
+</body>
+</html>
